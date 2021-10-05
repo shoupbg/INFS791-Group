@@ -35,6 +35,7 @@ destination_question = input ("If you don't know the code, type 'lookup':  ")
 print()
 
 # Starts lookup loop if applicable and ends with entry of airport code
+# new line
 
 if destination_question == "lookup":
     city = input("Please enter a city name to look up its airport code:  ")
