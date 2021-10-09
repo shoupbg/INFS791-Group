@@ -22,67 +22,49 @@ available_airports = airport_data.query("Code == @airports_served_list")
 
 # Ask user to enter city name or use lookup tool
 
-print ()
-print ("Are you planning to travel over winter break?")
-print ()
-print ("This program will help you choose a flight in order to minimize delays.")
+print ("\nAre you planning to travel over winter break?")
+print ("\nThis program will help you choose a flight in order to minimize delays.")
 # Note to Jason & Maria - we could expand the flight data to more months or all months - would give us more data to analyze
-print ()
 
-print ("First, we need to know where you're going.")
+
+print ("\nFirst, we need to know where you're going.")
 print ("If you know the three-letter code for the airport you're flying to, enter it now.")
-destination_question = input ("If you don't know the code, type 'lookup':  ")
-print()
+destination_question = input ("If you don't know the code, type 'lookup': ")
+
 
 # Starts lookup loop if applicable and ends with entry of airport code
 # new line
 
-if destination_question == "lookup":
-    city = input("Please enter a city name to look up its airport code:  ")
+# Define lookup function
+def lookup():
+    city = input("\nPlease enter a city name to look up its airport code:  ")
     possible_airport_codes = available_airports.loc[available_airports['Description'].str.contains(city, case=False)]
 
     while possible_airport_codes.empty == True:
-        print()
-        print ("That city is not directly served by a Chicago airport.")
-        print()
-        city = input("Please enter another city name to look up its airport code:  ")
-        possible_airport_codes = available_airports.loc[available_airports['Description'].str.contains(city, case=False)]
+        print("\nThat city is not directly served by a Chicago airport.")
+        city = input("\nPlease enter another city name to look up its airport code:  ")
+        possible_airport_codes = available_airports.loc[
+            available_airports['Description'].str.contains(city, case=False)]
     else:
-        print()
-        print("Below are airports in the selected city served by airports in Chicago:")
-        print()
-        print(possible_airport_codes.to_string(index=False))
-        print()
-        destination_question = input("Please enter the three-letter code of the airport you're flying to:  ")
+        print("\nBelow are airports in the selected city served by airports in Chicago:")
+        print("\n", possible_airport_codes.to_string(index=False))
+        destination_question = input("\nPlease enter the three-letter code of the airport you're flying to:  ")
+    return destination_question
+
+
+if destination_question.lower() == "lookup":
+    destination_question  = lookup()
 
 # Checks whether airport code entered is a valid code actually served by a Chicago airport; starts lookup loop again if needed
 
-while destination_question not in airports_served_list:
-    print()
-    print("That is not a valid entry")
-    print() 
-    destination_question = input("Please try again.  Please enter a three-letter airport code or type 'lookup':  ")
-    if destination_question == "lookup":
-        city = input("Please enter a city name to look up its airport code:  ")
-        possible_airport_codes = available_airports.loc[available_airports['Description'].str.contains(city, case=False)]
-
-        while possible_airport_codes.empty == True:
-            print()
-            print ("That city is not directly served by a Chicago airport.")
-            print()
-            city = input("Please enter another city name to look up its airport code:  ")
-            possible_airport_codes = available_airports.loc[available_airports['Description'].str.contains(city, case=False)]
-        else:
-            print()
-            print("Below are airports in the selected city served by airports in Chicago:")
-            print()
-            print(possible_airport_codes.to_string(index=False))
-            print()
-            destination_question = input("Please enter the three-letter code of the airport you're flying to:  ")
+while destination_question.upper() not in airports_served_list:
+    print("\nThat is not a valid entry")
+    destination_question = input("\nPlease try again.  Please enter a three-letter airport code or type 'lookup':  ")
+    if destination_question.lower() == "lookup":
+        destination_question = lookup()
 else:
-    print()
-    print(f"[Now we have a valid destination and we can start analysis]")
-    
+    print(f"\n[Now we have a valid destination and we can start analysis]")
+
 
 # Once we have a valid airport destination code, we query the data to see if there are flights between O'Hare and/or Midway and the destination
 
