@@ -1,4 +1,4 @@
-# INFS 791 - Group Project - First Draft - Maria, Jason, Brian - September 22, 2021
+# INFS 791 - Group Project - Maria, Jason, Brian - October 23, 2021
 
 # This program uses historical airline flight data to help a user choose a time of day
 #   day [possible add on: and day of the week] to fly to minimize flight delays
@@ -9,6 +9,13 @@ import numpy as np
 # Access airport data file and create a list of valid airport codes from the flight data file
 airport_data = pd.read_csv('airport_data.csv')
 flight_data = pd.concat(map(pd.read_csv, ['2020DecemberIllinoisFlights.csv', '2019DecemberIllinoisFlights.csv','2018DecemberIllinoisFlights.csv', '2017DecemberIllinoisFlights.csv']))
+
+flight_data['DEP_HOUR'] = flight_data.CRS_DEP_TIME / 100
+flight_data['TimeOfDay'] = np.where(flight_data['DEP_HOUR'] <= 12, 'Morning', 
+                      np.where(flight_data['DEP_HOUR'] >= 17, 'Evening', 'Afternoon'))
+
+
+
 flight_data_filtered = flight_data.query("ORIGIN == 'ORD' or ORIGIN == 'MDW'")
 # Line below was original code, only using 2019 flight data.  Line above combines 4 CSV files with December data for 2020, 2019, 2018 & 2017
 # flight_data = pd.read_csv('December2019Flights.csv')
@@ -63,37 +70,92 @@ while destination_question.upper() not in airports_served_list:
     destination_question = input("\nPlease try again.  Please enter a three-letter airport code or type 'lookup':  ")
     if destination_question.lower() == "lookup":
         destination_question = lookup()
-else:
-    print(f"\n[Now we have a valid destination and we can start analysis]")
 
 
 # Once we have a valid airport destination code, we query the data to see if there are flights between O'Hare and/or Midway and the destination
 
+
 destination_flights = flight_data_filtered.query("DEST == @destination_question")
 num_dest = destination_flights['DEST'].count()
+
+# Following are calculations for total O'Hare flights
 ORD_origin = destination_flights.query("ORIGIN == 'ORD'")
 ORD_origin_count = ORD_origin['ORIGIN'].count()
+ORD_delays = ORD_origin.query("DEP_DELAY_NEW > 0")
+ORD_delays_count = ORD_delays['ORIGIN'].count()
+ORD_delay_percent = round(ORD_delays_count / ORD_origin_count * 100,1)
+ORD_delay_length = round(ORD_delays['DEP_DELAY_NEW'].mean())
+
+
+# Following are calculations for O'Hare flights by time of day
+ORD_origin_morning = ORD_origin.query("TimeOfDay == 'Morning'")
+ORD_morning_count = ORD_origin_morning['ORIGIN'].count()
+ORD_morning_delays = ORD_origin_morning.query("DEP_DELAY_NEW > 0")
+ORD_morning_delays_count = ORD_morning_delays['ORIGIN'].count()
+ORD_morning_delays_percent = round(ORD_morning_delays_count / ORD_morning_count * 100,1)
+ORD_morning_delay_length = round(ORD_morning_delays['DEP_DELAY_NEW'].mean())
+
+ORD_origin_afternoon = ORD_origin.query("TimeOfDay == 'Afternoon'")
+ORD_afternoon_count = ORD_origin_afternoon['ORIGIN'].count()
+ORD_afternoon_delays = ORD_origin_afternoon.query("DEP_DELAY_NEW > 0")
+ORD_afternoon_delays_count = ORD_afternoon_delays['ORIGIN'].count()
+ORD_afternoon_delays_percent = round(ORD_afternoon_delays_count / ORD_afternoon_count * 100,1)
+ORD_afternoon_delay_length = round(ORD_afternoon_delays['DEP_DELAY_NEW'].mean())
+
+
+ORD_origin_evening = ORD_origin.query("TimeOfDay == 'Evening'")
+ORD_evening_count = ORD_origin_evening['ORIGIN'].count()
+ORD_evening_delays = ORD_origin_evening.query("DEP_DELAY_NEW > 0")
+ORD_evening_delays_count = ORD_evening_delays['ORIGIN'].count()
+ORD_evening_delays_percent = round(ORD_evening_delays_count / ORD_evening_count * 100,1)
+ORD_evening_delay_length = round(ORD_evening_delays['DEP_DELAY_NEW'].mean())
+
+
+
+# Following are calculations for total Midway flights
 MDW_origin = destination_flights.query("ORIGIN == 'MDW'")
 MDW_origin_count = MDW_origin['ORIGIN'].count()
+MDW_delays = MDW_origin.query("DEP_DELAY_NEW > 0")
+MDW_delays_count = MDW_delays['ORIGIN'].count()
+MDW_delay_percent = round(MDW_delays_count / MDW_origin_count * 100,1)
+MDW_delay_length = round(MDW_delays['DEP_DELAY_NEW'].mean())
 
 
-print()
-print(f"There were {num_dest} flights from Chicago to {destination_question} in December 2017, 2018, 2019 & 2020")
-print()
+
+# Following are calculations for Midway flights by time of day
+MDW_origin_morning = MDW_origin.query("TimeOfDay == 'Morning'")
+MDW_morning_count = MDW_origin_morning['ORIGIN'].count()
+MDW_morning_delays = MDW_origin_morning.query("DEP_DELAY_NEW > 0")
+MDW_morning_delays_count = MDW_morning_delays['ORIGIN'].count()
+MDW_morning_delays_percent = round(MDW_morning_delays_count / MDW_morning_count * 100,1)
+MDW_morning_delay_length = round(MDW_morning_delays['DEP_DELAY_NEW'].mean())
+
+MDW_origin_afternoon = MDW_origin.query("TimeOfDay == 'Afternoon'")
+MDW_afternoon_count = MDW_origin_afternoon['ORIGIN'].count()
+MDW_afternoon_delays = MDW_origin_afternoon.query("DEP_DELAY_NEW > 0")
+MDW_afternoon_delays_count = MDW_afternoon_delays['ORIGIN'].count()
+MDW_afternoon_delays_percent = round(MDW_afternoon_delays_count / MDW_afternoon_count * 100,1)
+MDW_afternoon_delay_length = round(MDW_afternoon_delays['DEP_DELAY_NEW'].mean())
+
+MDW_origin_evening = MDW_origin.query("TimeOfDay == 'Evening'")
+MDW_evening_count = MDW_origin_evening['ORIGIN'].count()
+MDW_evening_delays = MDW_origin_evening.query("DEP_DELAY_NEW > 0")
+MDW_evening_delays_count = MDW_evening_delays['ORIGIN'].count()
+MDW_evening_delays_percent = round(MDW_evening_delays_count / MDW_evening_count * 100,1)
+MDW_evening_delay_length = round(MDW_evening_delays['DEP_DELAY_NEW'].mean())
+
+
+
+print(f"\nThere were {num_dest} flights from Chicago to {destination_question} in December 2017, 2018, 2019 & 2020")
 print(f"Of those flights, {ORD_origin_count} were from O'Hare and {MDW_origin_count} were from Midway")
-print()
+print(f"\n{ORD_delay_percent}% of the O'Hare flights were delayed")
+print(f"{ORD_morning_count} of the O'Hare flights were in the morning, {ORD_afternoon_count} were in the afternoon and {ORD_evening_count} were in the evening")
+print(f"O'Hare flights delayed were:  Morning {ORD_morning_delays_percent}%, Afternoon {ORD_afternoon_delays_percent}% and Evening {ORD_evening_delays_percent}%")
+print(f"Average length of delay for delayed flights was:  Morning {ORD_morning_delay_length}, Afternoon {ORD_afternoon_delay_length}, Evening {ORD_evening_delay_length}")
+print(f"\n{MDW_delay_percent}% of the Midway flights were delayed")
+print(f"{MDW_morning_count} of the Midway flights were in the morning, {MDW_afternoon_count} were in the afternoon and {MDW_evening_count} were in the evening")
+print(f"Midway flights delayed were as follows:  Morning {MDW_morning_delays_percent}%, Afternoon {MDW_afternoon_delays_percent}% and Evening {MDW_evening_delays_percent}%")
+print(f"Average length of delay for delayed flights was:  Morning {MDW_morning_delay_length}, Afternoon {MDW_afternoon_delay_length}, Evening {MDW_evening_delay_length}")
 
 
 
-# Possible outcomes:
-# 1) There are directly from ORD only or from MDW only
-#     - provide that feedback together with other statistics
-# 2) There are direct flights from both ORD and MDW
-#     - provide that feedback with statistics for both Chicago airports
-
-# Statistics we could provide from the data:
-# - number of flights per week
-# - % of on-time (or late) flights
-# - average delay (in minutes) for late flights
-# - Best time of day to fly to avoid delays (morning, afternoon, evening), based on incidence of delays by time of day
-# - whether to travel from ORD or MDW, if flights to that destination are available from both
