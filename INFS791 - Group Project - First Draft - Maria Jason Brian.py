@@ -5,6 +5,9 @@
 
 import pandas as pd
 import numpy as np
+from statistics import *
+import matplotlib.pyplot as plt
+import numpy as np
 
 # Access airport data file and create a list of valid airport codes from the flight data file
 airport_data = pd.read_csv('airport_data.csv')
@@ -70,12 +73,13 @@ while destination_question.upper() not in airports_served_list:
     destination_question = input("\nPlease try again.  Please enter a three-letter airport code or type 'lookup':  ")
     if destination_question.lower() == "lookup":
         destination_question = lookup()
+else:
+    print(f"\n[Now we have a valid destination and we can start analysis]" +destination_question)
 
 
 # Once we have a valid airport destination code, we query the data to see if there are flights between O'Hare and/or Midway and the destination
 
-
-destination_flights = flight_data_filtered.query("DEST == @destination_question")
+destination_flights = flight_data.query("DEST == @destination_question.upper()")
 num_dest = destination_flights['DEST'].count()
 
 # Following are calculations for total O'Hare flights
@@ -121,6 +125,7 @@ MDW_delay_percent = round(MDW_delays_count / MDW_origin_count * 100,1)
 MDW_delay_length = round(MDW_delays['DEP_DELAY_NEW'].mean())
 
 
+print(f"\nThere were {num_dest} flights from Chicago to {destination_question.upper()} in December 2017, 2018, 2019 & 2020")
 
 # Following are calculations for Midway flights by time of day
 MDW_origin_morning = MDW_origin.query("TimeOfDay == 'Morning'")
@@ -157,5 +162,84 @@ print(f"{MDW_morning_count} of the Midway flights were in the morning, {MDW_afte
 print(f"Midway flights delayed were as follows:  Morning {MDW_morning_delays_percent}%, Afternoon {MDW_afternoon_delays_percent}% and Evening {MDW_evening_delays_percent}%")
 print(f"Average length of delay for delayed flights was:  Morning {MDW_morning_delay_length}, Afternoon {MDW_afternoon_delay_length}, Evening {MDW_evening_delay_length}")
 
+print(f"\nOf those flights, {ORD_origin_count} were from O'Hare and {MDW_origin_count} were from Midway")
 
+
+
+# Possible outcomes:
+# 1) There are directly from ORD only or from MDW only
+#     - provide that feedback together with other statistics
+# 2) There are direct flights from both ORD and MDW
+#     - provide that feedback with statistics for both Chicago airports
+
+# Statistics we could provide from the data:
+# - number of flights per week
+# - % of on-time (or late) flights
+# - average delay (in minutes) for late flights
+# - Best time of day to fly to avoid delays (morning, afternoon, evening), based on incidence of delays by time of day
+# - whether to travel from ORD or MDW, if flights to that destination are available from both
+
+
+#Statistics
+without_delay = destination_flights.query("ARR_DELAY_NEW == 0").ARR_DELAY_NEW.count()
+with_delay = destination_flights.query("ARR_DELAY_NEW > 0").ARR_DELAY_NEW.count()
+print("Count of flights without delay ", without_delay)
+print("Count of flights with delay ", with_delay)
+
+print(destination_flights['ARR_DELAY_NEW'].dtypes)
+print(destination_flights['ARR_DELAY_NEW'].sum())
+print(destination_flights['ARR_DELAY_NEW'].describe())
+
+#this is not working with package
+
+"""
+print("mean value: ", round(mean(destination_flights['ARR_DELAY_NEW']), 2))
+print("median value: ", median(destination_flights.ARR_DELAY_NEW))
+try:
+    print("mode value: ", mode(destination_flights.ARR_DELAY_NEW))
+except StatisticsError:
+    print("** Data does not have a unique mode **")
+print("sample standard deviation: ", \
+      round(stdev(destination_flights.ARR_DELAY_NEW), 2))
+print("population standard deviation: ", \
+      round(pstdev(destination_flights.ARR_DELAY_NEW), 2))
+"""
+
+#if we do correlation I need variables to correlate
+"""
+new_trips_df=trips_df[['fare','trip_miles','trip_seconds']].copy()
+print("\n",new_trips_df.describe())
+print("\n",new_trips_df.columns)
+
+# The following line prints the correlation matrix
+print("\n",new_trips_df.corr())
+"""
+
+# Bar chart
+
+# Change data type of pickup_community_area to integer
+trips_df = trips_df.astype({'pickup_community_area':int})
+
+trips_df = trips_df.set_index('pickup_community_area')
+
+# Create DataFrame groupby object with count of pickups by area
+pickups = trips_df.groupby('pickup_community_area').count()
+
+x_labels = pd.Series(pickups.index.values)
+y_values = pd.Series(pickups['fare'].values)
+
+# Create an array of the number of categories to use in the histogram
+bars = np.array(range(len(x_labels)))
+
+# Use xticks method to specify actual values of pickup locations
+plt.xticks(bars, x_labels)
+
+plt.bar(bars, y_values)
+
+plt.title('Taxi Trip Pickup Areas')
+plt.xlabel('Pickup Community Area')
+plt.ylabel('Frequency')
+plt.show()
+
+# what place and time
 
