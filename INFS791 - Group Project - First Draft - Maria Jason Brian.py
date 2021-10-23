@@ -218,15 +218,18 @@ print("\n",new_trips_df.corr())
 # Bar chart
 
 # Change data type of pickup_community_area to integer
-trips_df = trips_df.astype({'pickup_community_area':int})
+# trips_df = trips_df.astype({'pickup_community_area':int})
 
-trips_df = trips_df.set_index('pickup_community_area')
+# trips_df = trips_df.set_index('pickup_community_area')
+destination_flights = destination_flights.set_index('DEST')
+
 
 # Create DataFrame groupby object with count of pickups by area
-pickups = trips_df.groupby('pickup_community_area').count()
+delay = destination_flights.groupby('ORIGIN').count()
+print(delay)
 
-x_labels = pd.Series(pickups.index.values)
-y_values = pd.Series(pickups['fare'].values)
+x_labels = pd.Series(delay.index.values)
+y_values = pd.Series(delay['MONTH'].values)
 
 # Create an array of the number of categories to use in the histogram
 bars = np.array(range(len(x_labels)))
@@ -236,8 +239,8 @@ plt.xticks(bars, x_labels)
 
 plt.bar(bars, y_values)
 
-plt.title('Taxi Trip Pickup Areas')
-plt.xlabel('Pickup Community Area')
+plt.title('Delay by month')
+plt.xlabel('Origin')
 plt.ylabel('Frequency')
 plt.show()
 
