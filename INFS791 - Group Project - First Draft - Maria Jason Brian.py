@@ -9,6 +9,7 @@ import numpy as np
 # Access airport data file and create a list of valid airport codes from the flight data file
 airport_data = pd.read_csv('airport_data.csv')
 flight_data = pd.concat(map(pd.read_csv, ['2020DecemberIllinoisFlights.csv', '2019DecemberIllinoisFlights.csv','2018DecemberIllinoisFlights.csv', '2017DecemberIllinoisFlights.csv']))
+flight_data_filtered = flight_data.query("ORIGIN == 'ORD' or ORIGIN == 'MDW'")
 # Line below was original code, only using 2019 flight data.  Line above combines 4 CSV files with December data for 2020, 2019, 2018 & 2017
 # flight_data = pd.read_csv('December2019Flights.csv')
 airports_served = flight_data.DEST.unique()
@@ -68,10 +69,7 @@ else:
 
 # Once we have a valid airport destination code, we query the data to see if there are flights between O'Hare and/or Midway and the destination
 
-# NTD:  The code below still has bugs!!!  There's something wrong with flights within Illinois!!!!!!
-# NTD:  I think we need to filter all origin airports other than ORD & MDW out of the flight_data DataFeame
-
-destination_flights = flight_data.query("DEST == @destination_question")
+destination_flights = flight_data_filtered.query("DEST == @destination_question")
 num_dest = destination_flights['DEST'].count()
 ORD_origin = destination_flights.query("ORIGIN == 'ORD'")
 ORD_origin_count = ORD_origin['ORIGIN'].count()
