@@ -85,44 +85,44 @@ num_dest = destination_flights['DEST'].count()
 # Following are calculations for total O'Hare flights
 ORD_origin = destination_flights.query("ORIGIN == 'ORD'")
 ORD_origin_count = ORD_origin['ORIGIN'].count()
-ORD_delays = ORD_origin.query("DEP_DELAY_NEW > 0")
+ORD_delays = ORD_origin.query("ARR_DELAY_NEW > 0")
 ORD_delays_count = ORD_delays['ORIGIN'].count()
 ORD_delay_percent = round(ORD_delays_count / ORD_origin_count * 100,1)
-ORD_delay_length = round(ORD_delays['DEP_DELAY_NEW'].mean())
+ORD_delay_length = round(ORD_delays['ARR_DELAY_NEW'].mean())
 
 
 # Following are calculations for O'Hare flights by time of day
 ORD_origin_morning = ORD_origin.query("TimeOfDay == 'Morning'")
 ORD_morning_count = ORD_origin_morning['ORIGIN'].count()
-ORD_morning_delays = ORD_origin_morning.query("DEP_DELAY_NEW > 0")
+ORD_morning_delays = ORD_origin_morning.query("ARR_DELAY_NEW > 0")
 ORD_morning_delays_count = ORD_morning_delays['ORIGIN'].count()
 ORD_morning_delays_percent = round(ORD_morning_delays_count / ORD_morning_count * 100,1)
-ORD_morning_delay_length = round(ORD_morning_delays['DEP_DELAY_NEW'].mean())
+ORD_morning_delay_length = round(ORD_morning_delays['ARR_DELAY_NEW'].mean())
 
 ORD_origin_afternoon = ORD_origin.query("TimeOfDay == 'Afternoon'")
 ORD_afternoon_count = ORD_origin_afternoon['ORIGIN'].count()
-ORD_afternoon_delays = ORD_origin_afternoon.query("DEP_DELAY_NEW > 0")
+ORD_afternoon_delays = ORD_origin_afternoon.query("ARR_DELAY_NEW > 0")
 ORD_afternoon_delays_count = ORD_afternoon_delays['ORIGIN'].count()
 ORD_afternoon_delays_percent = round(ORD_afternoon_delays_count / ORD_afternoon_count * 100,1)
-ORD_afternoon_delay_length = round(ORD_afternoon_delays['DEP_DELAY_NEW'].mean())
+ORD_afternoon_delay_length = round(ORD_afternoon_delays['ARR_DELAY_NEW'].mean())
 
 
 ORD_origin_evening = ORD_origin.query("TimeOfDay == 'Evening'")
 ORD_evening_count = ORD_origin_evening['ORIGIN'].count()
-ORD_evening_delays = ORD_origin_evening.query("DEP_DELAY_NEW > 0")
+ORD_evening_delays = ORD_origin_evening.query("ARR_DELAY_NEW > 0")
 ORD_evening_delays_count = ORD_evening_delays['ORIGIN'].count()
 ORD_evening_delays_percent = round(ORD_evening_delays_count / ORD_evening_count * 100,1)
-ORD_evening_delay_length = round(ORD_evening_delays['DEP_DELAY_NEW'].mean())
+ORD_evening_delay_length = round(ORD_evening_delays['ARR_DELAY_NEW'].mean())
 
 
 
 # Following are calculations for total Midway flights
 MDW_origin = destination_flights.query("ORIGIN == 'MDW'")
 MDW_origin_count = MDW_origin['ORIGIN'].count()
-MDW_delays = MDW_origin.query("DEP_DELAY_NEW > 0")
+MDW_delays = MDW_origin.query("ARR_DELAY_NEW > 0")
 MDW_delays_count = MDW_delays['ORIGIN'].count()
 MDW_delay_percent = round(MDW_delays_count / MDW_origin_count * 100,1)
-MDW_delay_length = round(MDW_delays['DEP_DELAY_NEW'].mean())
+MDW_delay_length = round(MDW_delays['ARR_DELAY_NEW'].mean())
 
 
 print(f"\nThere were {num_dest} flights from Chicago to {destination_question.upper()} in December 2017, 2018, 2019 & 2020")
@@ -130,24 +130,24 @@ print(f"\nThere were {num_dest} flights from Chicago to {destination_question.up
 # Following are calculations for Midway flights by time of day
 MDW_origin_morning = MDW_origin.query("TimeOfDay == 'Morning'")
 MDW_morning_count = MDW_origin_morning['ORIGIN'].count()
-MDW_morning_delays = MDW_origin_morning.query("DEP_DELAY_NEW > 0")
+MDW_morning_delays = MDW_origin_morning.query("ARR_DELAY_NEW > 0")
 MDW_morning_delays_count = MDW_morning_delays['ORIGIN'].count()
 MDW_morning_delays_percent = round(MDW_morning_delays_count / MDW_morning_count * 100,1)
-MDW_morning_delay_length = round(MDW_morning_delays['DEP_DELAY_NEW'].mean())
+MDW_morning_delay_length = round(MDW_morning_delays['ARR_DELAY_NEW'].mean())
 
 MDW_origin_afternoon = MDW_origin.query("TimeOfDay == 'Afternoon'")
 MDW_afternoon_count = MDW_origin_afternoon['ORIGIN'].count()
-MDW_afternoon_delays = MDW_origin_afternoon.query("DEP_DELAY_NEW > 0")
+MDW_afternoon_delays = MDW_origin_afternoon.query("ARR_DELAY_NEW > 0")
 MDW_afternoon_delays_count = MDW_afternoon_delays['ORIGIN'].count()
 MDW_afternoon_delays_percent = round(MDW_afternoon_delays_count / MDW_afternoon_count * 100,1)
-MDW_afternoon_delay_length = round(MDW_afternoon_delays['DEP_DELAY_NEW'].mean())
+MDW_afternoon_delay_length = round(MDW_afternoon_delays['ARR_DELAY_NEW'].mean())
 
 MDW_origin_evening = MDW_origin.query("TimeOfDay == 'Evening'")
 MDW_evening_count = MDW_origin_evening['ORIGIN'].count()
-MDW_evening_delays = MDW_origin_evening.query("DEP_DELAY_NEW > 0")
+MDW_evening_delays = MDW_origin_evening.query("ARR_DELAY_NEW > 0")
 MDW_evening_delays_count = MDW_evening_delays['ORIGIN'].count()
 MDW_evening_delays_percent = round(MDW_evening_delays_count / MDW_evening_count * 100,1)
-MDW_evening_delay_length = round(MDW_evening_delays['DEP_DELAY_NEW'].mean())
+MDW_evening_delay_length = round(MDW_evening_delays['ARR_DELAY_NEW'].mean())
 
 
 
