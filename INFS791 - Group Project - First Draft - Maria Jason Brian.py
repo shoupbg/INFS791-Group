@@ -252,149 +252,151 @@ if ORD_origin_count < 1 and MDW_origin_count > 0:
 
 #number of flights per weekday
 
-ORD_origin_monday = ORD_origin.query("DAY_OF_WEEK == 1")
-ORD_monday_count = ORD_origin_monday['ORIGIN'].count()
-ORD_monday_delays = ORD_origin_monday.query("DEP_DELAY_NEW > 0")
-ORD_monday_delays_count = ORD_monday_delays['ORIGIN'].count()
-ORD_monday_delays_percent = round(ORD_monday_delays_count / ORD_monday_count * 100,1)
-if ORD_monday_delays_count == 0:
-    ORD_monday_delays_length = 0
-else:
-    ORD_monday_delays_length = round(ORD_monday_delays['DEP_DELAY_NEW'].mean())
+if ORD_origin_count > 0:
 
-ORD_origin_tuesday = ORD_origin.query("DAY_OF_WEEK == 2")
-ORD_tuesday_count = ORD_origin_tuesday['ORIGIN'].count()
-ORD_tuesday_delays = ORD_origin_tuesday.query("DEP_DELAY_NEW > 0")
-ORD_tuesday_delays_count = ORD_tuesday_delays['ORIGIN'].count()
-ORD_tuesday_delays_percent = round(ORD_tuesday_delays_count / ORD_tuesday_count * 100,1)
-if ORD_tuesday_delays_count == 0:
-    ORD_tuesday_delays_length = 0
-else:
-    ORD_tuesday_delays_length = round(ORD_tuesday_delays['DEP_DELAY_NEW'].mean())
+    ORD_origin_monday = ORD_origin.query("DAY_OF_WEEK == 1")
+    ORD_monday_count = ORD_origin_monday['ORIGIN'].count()
+    ORD_monday_delays = ORD_origin_monday.query("DEP_DELAY_NEW > 0")
+    ORD_monday_delays_count = ORD_monday_delays['ORIGIN'].count()
+    ORD_monday_delays_percent = round(ORD_monday_delays_count / ORD_monday_count * 100,1)
+    if ORD_monday_delays_count == 0:
+        ORD_monday_delays_length = 0
+    else:
+        ORD_monday_delays_length = round(ORD_monday_delays['DEP_DELAY_NEW'].mean())
 
-
-ORD_origin_wednesday = ORD_origin.query("DAY_OF_WEEK == 3")
-ORD_wednesday_count = ORD_origin_wednesday['ORIGIN'].count()
-ORD_wednesday_delays = ORD_origin_wednesday.query("DEP_DELAY_NEW > 0")
-ORD_wednesday_delays_count = ORD_wednesday_delays['ORIGIN'].count()
-ORD_wednesday_delays_percent = round(ORD_wednesday_delays_count / ORD_wednesday_count * 100,1)
-if ORD_wednesday_delays_count == 0:
-    ORD_wednesday_delays_length = 0
-else:
-    ORD_wednesday_delays_length = round(ORD_wednesday_delays['DEP_DELAY_NEW'].mean())
-
-ORD_origin_thursday = ORD_origin.query("DAY_OF_WEEK == 4")
-ORD_thursday_count = ORD_origin_thursday['ORIGIN'].count()
-ORD_thursday_delays = ORD_origin_thursday.query("DEP_DELAY_NEW > 0")
-ORD_thursday_delays_count = ORD_thursday_delays['ORIGIN'].count()
-ORD_thursday_delays_percent = round(ORD_thursday_delays_count / ORD_thursday_count * 100,1)
-if ORD_thursday_delays_count == 0:
-    ORD_thursday_delays_length = 0
-else:
-    ORD_thursday_delays_length = round(ORD_thursday_delays['DEP_DELAY_NEW'].mean())
-
-ORD_origin_friday = ORD_origin.query("DAY_OF_WEEK == 5")
-ORD_friday_count = ORD_origin_friday['ORIGIN'].count()
-ORD_friday_delays = ORD_origin_friday.query("DEP_DELAY_NEW > 0")
-ORD_friday_delays_count = ORD_friday_delays['ORIGIN'].count()
-ORD_friday_delays_percent = round(ORD_friday_delays_count / ORD_friday_count * 100,1)
-if ORD_friday_delays_count == 0:
-    ORD_friday_delays_length = 0
-else:
-    ORD_friday_delays_length = round(ORD_friday_delays['DEP_DELAY_NEW'].mean())
-
-ORD_origin_saturday = ORD_origin.query("DAY_OF_WEEK == 6")
-ORD_saturday_count = ORD_origin_saturday['ORIGIN'].count()
-ORD_saturday_delays = ORD_origin_saturday.query("DEP_DELAY_NEW > 0")
-ORD_saturday_delays_count = ORD_saturday_delays['ORIGIN'].count()
-ORD_saturday_delays_percent = round(ORD_saturday_delays_count / ORD_saturday_count * 100,1)
-if ORD_saturday_delays_count == 0:
-    ORD_saturday_delays_length = 0
-else:
-    ORD_saturday_delays_length = round(ORD_saturday_delays['DEP_DELAY_NEW'].mean())
-
-ORD_origin_sunday = ORD_origin.query("DAY_OF_WEEK == 7")
-ORD_sunday_count = ORD_origin_sunday['ORIGIN'].count()
-ORD_sunday_delays = ORD_origin_sunday.query("DEP_DELAY_NEW > 0")
-ORD_sunday_delays_count = ORD_sunday_delays['ORIGIN'].count()
-ORD_sunday_delays_percent = round(ORD_sunday_delays_count / ORD_sunday_count * 100,1)
-if ORD_sunday_delays_count == 0:
-    ORD_sunday_delays_length = 0
-else:
-    ORD_sunday_delays_length = round(ORD_sunday_delays['DEP_DELAY_NEW'].mean())
+    ORD_origin_tuesday = ORD_origin.query("DAY_OF_WEEK == 2")
+    ORD_tuesday_count = ORD_origin_tuesday['ORIGIN'].count()
+    ORD_tuesday_delays = ORD_origin_tuesday.query("DEP_DELAY_NEW > 0")
+    ORD_tuesday_delays_count = ORD_tuesday_delays['ORIGIN'].count()
+    ORD_tuesday_delays_percent = round(ORD_tuesday_delays_count / ORD_tuesday_count * 100,1)
+    if ORD_tuesday_delays_count == 0:
+        ORD_tuesday_delays_length = 0
+    else:
+        ORD_tuesday_delays_length = round(ORD_tuesday_delays['DEP_DELAY_NEW'].mean())
 
 
+    ORD_origin_wednesday = ORD_origin.query("DAY_OF_WEEK == 3")
+    ORD_wednesday_count = ORD_origin_wednesday['ORIGIN'].count()
+    ORD_wednesday_delays = ORD_origin_wednesday.query("DEP_DELAY_NEW > 0")
+    ORD_wednesday_delays_count = ORD_wednesday_delays['ORIGIN'].count()
+    ORD_wednesday_delays_percent = round(ORD_wednesday_delays_count / ORD_wednesday_count * 100,1)
+    if ORD_wednesday_delays_count == 0:
+        ORD_wednesday_delays_length = 0
+    else:
+        ORD_wednesday_delays_length = round(ORD_wednesday_delays['DEP_DELAY_NEW'].mean())
 
-MDW_origin_monday = MDW_origin.query("DAY_OF_WEEK == 1")
-MDW_monday_count = MDW_origin_monday['ORIGIN'].count()
-MDW_monday_delays = MDW_origin_monday.query("DEP_DELAY_NEW > 0")
-MDW_monday_delays_count = MDW_monday_delays['ORIGIN'].count()
-MDW_monday_delays_percent = round(MDW_monday_delays_count / MDW_monday_count * 100,1)
-if MDW_monday_delays_count == 0:
-    MDW_monday_delays_length = 0
-else:
-    MDW_monday_delays_length = round(MDW_monday_delays['DEP_DELAY_NEW'].mean())
+    ORD_origin_thursday = ORD_origin.query("DAY_OF_WEEK == 4")
+    ORD_thursday_count = ORD_origin_thursday['ORIGIN'].count()
+    ORD_thursday_delays = ORD_origin_thursday.query("DEP_DELAY_NEW > 0")
+    ORD_thursday_delays_count = ORD_thursday_delays['ORIGIN'].count()
+    ORD_thursday_delays_percent = round(ORD_thursday_delays_count / ORD_thursday_count * 100,1)
+    if ORD_thursday_delays_count == 0:
+        ORD_thursday_delays_length = 0
+    else:
+        ORD_thursday_delays_length = round(ORD_thursday_delays['DEP_DELAY_NEW'].mean())
 
-MDW_origin_tuesday = MDW_origin.query("DAY_OF_WEEK == 2")
-MDW_tuesday_count = MDW_origin_tuesday['ORIGIN'].count()
-MDW_tuesday_delays = MDW_origin_tuesday.query("DEP_DELAY_NEW > 0")
-MDW_tuesday_delays_count = MDW_tuesday_delays['ORIGIN'].count()
-MDW_tuesday_delays_percent = round(MDW_tuesday_delays_count / MDW_tuesday_count * 100,1)
-if MDW_tuesday_delays_count == 0:
-    MDW_tuesday_delays_length = 0
-else:
-    MDW_tuesday_delays_length = round(MDW_tuesday_delays['DEP_DELAY_NEW'].mean())
+    ORD_origin_friday = ORD_origin.query("DAY_OF_WEEK == 5")
+    ORD_friday_count = ORD_origin_friday['ORIGIN'].count()
+    ORD_friday_delays = ORD_origin_friday.query("DEP_DELAY_NEW > 0")
+    ORD_friday_delays_count = ORD_friday_delays['ORIGIN'].count()
+    ORD_friday_delays_percent = round(ORD_friday_delays_count / ORD_friday_count * 100,1)
+    if ORD_friday_delays_count == 0:
+        ORD_friday_delays_length = 0
+    else:
+        ORD_friday_delays_length = round(ORD_friday_delays['DEP_DELAY_NEW'].mean())
+
+    ORD_origin_saturday = ORD_origin.query("DAY_OF_WEEK == 6")
+    ORD_saturday_count = ORD_origin_saturday['ORIGIN'].count()
+    ORD_saturday_delays = ORD_origin_saturday.query("DEP_DELAY_NEW > 0")
+    ORD_saturday_delays_count = ORD_saturday_delays['ORIGIN'].count()
+    ORD_saturday_delays_percent = round(ORD_saturday_delays_count / ORD_saturday_count * 100,1)
+    if ORD_saturday_delays_count == 0:
+        ORD_saturday_delays_length = 0
+    else:
+        ORD_saturday_delays_length = round(ORD_saturday_delays['DEP_DELAY_NEW'].mean())
+
+    ORD_origin_sunday = ORD_origin.query("DAY_OF_WEEK == 7")
+    ORD_sunday_count = ORD_origin_sunday['ORIGIN'].count()
+    ORD_sunday_delays = ORD_origin_sunday.query("DEP_DELAY_NEW > 0")
+    ORD_sunday_delays_count = ORD_sunday_delays['ORIGIN'].count()
+    ORD_sunday_delays_percent = round(ORD_sunday_delays_count / ORD_sunday_count * 100,1)
+    if ORD_sunday_delays_count == 0:
+        ORD_sunday_delays_length = 0
+    else:
+        ORD_sunday_delays_length = round(ORD_sunday_delays['DEP_DELAY_NEW'].mean())
+
+if MDW_origin_count > 0:
+
+    MDW_origin_monday = MDW_origin.query("DAY_OF_WEEK == 1")
+    MDW_monday_count = MDW_origin_monday['ORIGIN'].count()
+    MDW_monday_delays = MDW_origin_monday.query("DEP_DELAY_NEW > 0")
+    MDW_monday_delays_count = MDW_monday_delays['ORIGIN'].count()
+    MDW_monday_delays_percent = round(MDW_monday_delays_count / MDW_monday_count * 100,1)
+    if MDW_monday_delays_count == 0:
+        MDW_monday_delays_length = 0
+    else:
+         MDW_monday_delays_length = round(MDW_monday_delays['DEP_DELAY_NEW'].mean())
+
+    MDW_origin_tuesday = MDW_origin.query("DAY_OF_WEEK == 2")
+    MDW_tuesday_count = MDW_origin_tuesday['ORIGIN'].count()
+    MDW_tuesday_delays = MDW_origin_tuesday.query("DEP_DELAY_NEW > 0")
+    MDW_tuesday_delays_count = MDW_tuesday_delays['ORIGIN'].count()
+    MDW_tuesday_delays_percent = round(MDW_tuesday_delays_count / MDW_tuesday_count * 100,1)
+    if MDW_tuesday_delays_count == 0:
+        MDW_tuesday_delays_length = 0
+    else:
+        MDW_tuesday_delays_length = round(MDW_tuesday_delays['DEP_DELAY_NEW'].mean())
 
 
-MDW_origin_wednesday = MDW_origin.query("DAY_OF_WEEK == 3")
-MDW_wednesday_count = MDW_origin_wednesday['ORIGIN'].count()
-MDW_wednesday_delays = MDW_origin_wednesday.query("DEP_DELAY_NEW > 0")
-MDW_wednesday_delays_count = MDW_wednesday_delays['ORIGIN'].count()
-MDW_wednesday_delays_percent = round(MDW_wednesday_delays_count / MDW_wednesday_count * 100,1)
-if MDW_wednesday_delays_count == 0:
-    MDW_wednesday_delays_length = 0
-else:
-    MDW_wednesday_delay_length = round(MDW_wednesday_delays['DEP_DELAY_NEW'].mean())
+    MDW_origin_wednesday = MDW_origin.query("DAY_OF_WEEK == 3")
+    MDW_wednesday_count = MDW_origin_wednesday['ORIGIN'].count()
+    MDW_wednesday_delays = MDW_origin_wednesday.query("DEP_DELAY_NEW > 0")
+    MDW_wednesday_delays_count = MDW_wednesday_delays['ORIGIN'].count()
+    MDW_wednesday_delays_percent = round(MDW_wednesday_delays_count / MDW_wednesday_count * 100,1)
+    if MDW_wednesday_delays_count == 0:
+        MDW_wednesday_delays_length = 0
+    else:
+        MDW_wednesday_delay_length = round(MDW_wednesday_delays['DEP_DELAY_NEW'].mean())
 
-MDW_origin_thursday = MDW_origin.query("DAY_OF_WEEK == 4")
-MDW_thursday_count = MDW_origin_thursday['ORIGIN'].count()
-MDW_thursday_delays = MDW_origin_thursday.query("DEP_DELAY_NEW > 0")
-MDW_thursday_delays_count = MDW_thursday_delays['ORIGIN'].count()
-MDW_thursday_delays_percent = round(MDW_thursday_delays_count / MDW_thursday_count * 100,1)
-if MDW_thursday_delays_count == 0:
-    MDW_thursday_delays_length = 0
-else:
-    MDW_thursday_delay_length = round(MDW_thursday_delays['DEP_DELAY_NEW'].mean())
+    MDW_origin_thursday = MDW_origin.query("DAY_OF_WEEK == 4")
+    MDW_thursday_count = MDW_origin_thursday['ORIGIN'].count()
+    MDW_thursday_delays = MDW_origin_thursday.query("DEP_DELAY_NEW > 0")
+    MDW_thursday_delays_count = MDW_thursday_delays['ORIGIN'].count()
+    MDW_thursday_delays_percent = round(MDW_thursday_delays_count / MDW_thursday_count * 100,1)
+    if MDW_thursday_delays_count == 0:
+        MDW_thursday_delays_length = 0
+    else:
+        MDW_thursday_delay_length = round(MDW_thursday_delays['DEP_DELAY_NEW'].mean())
 
-MDW_origin_friday = MDW_origin.query("DAY_OF_WEEK == 5")
-MDW_friday_count = MDW_origin_friday['ORIGIN'].count()
-MDW_friday_delays = MDW_origin_friday.query("DEP_DELAY_NEW > 0")
-MDW_friday_delays_count = MDW_friday_delays['ORIGIN'].count()
-MDW_friday_delays_percent = round(MDW_friday_delays_count / MDW_friday_count * 100,1)
-if MDW_friday_delays_count == 0:
-    MDW_friday_delays_length = 0
-else:
-    MDW_friday_delay_length = round(MDW_friday_delays['DEP_DELAY_NEW'].mean())
+    MDW_origin_friday = MDW_origin.query("DAY_OF_WEEK == 5")
+    MDW_friday_count = MDW_origin_friday['ORIGIN'].count()
+    MDW_friday_delays = MDW_origin_friday.query("DEP_DELAY_NEW > 0")
+    MDW_friday_delays_count = MDW_friday_delays['ORIGIN'].count()
+    MDW_friday_delays_percent = round(MDW_friday_delays_count / MDW_friday_count * 100,1)
+    if MDW_friday_delays_count == 0:
+        MDW_friday_delays_length = 0
+    else:
+        MDW_friday_delay_length = round(MDW_friday_delays['DEP_DELAY_NEW'].mean())
 
-MDW_origin_saturday = MDW_origin.query("DAY_OF_WEEK == 6")
-MDW_saturday_count = MDW_origin_saturday['ORIGIN'].count()
-MDW_saturday_delays = MDW_origin_saturday.query("DEP_DELAY_NEW > 0")
-MDW_saturday_delays_count = MDW_saturday_delays['ORIGIN'].count()
-MDW_saturday_delays_percent = round(MDW_saturday_delays_count / MDW_saturday_count * 100,1)
-if MDW_saturday_delays_count == 0:
-    MDW_saturday_delays_length = 0
-else:
-    MDW_saturday_delay_length = round(MDW_saturday_delays['DEP_DELAY_NEW'].mean())
+    MDW_origin_saturday = MDW_origin.query("DAY_OF_WEEK == 6")
+    MDW_saturday_count = MDW_origin_saturday['ORIGIN'].count()
+    MDW_saturday_delays = MDW_origin_saturday.query("DEP_DELAY_NEW > 0")
+    MDW_saturday_delays_count = MDW_saturday_delays['ORIGIN'].count()
+    MDW_saturday_delays_percent = round(MDW_saturday_delays_count / MDW_saturday_count * 100,1)
+    if MDW_saturday_delays_count == 0:
+        MDW_saturday_delays_length = 0
+    else:
+        MDW_saturday_delay_length = round(MDW_saturday_delays['DEP_DELAY_NEW'].mean())
 
-MDW_origin_sunday = MDW_origin.query("DAY_OF_WEEK == 7")
-MDW_sunday_count = MDW_origin_sunday['ORIGIN'].count()
-MDW_sunday_delays = MDW_origin_sunday.query("DEP_DELAY_NEW > 0")
-MDW_sunday_delays_count = MDW_sunday_delays['ORIGIN'].count()
-MDW_sunday_delays_percent = round(MDW_sunday_delays_count / MDW_sunday_count * 100,1)
-if MDW_sunday_delays_count == 0:
-    MDW_sunday_delays_length = 0
-else:
-    MDW_sunday_delay_length = round(MDW_sunday_delays['DEP_DELAY_NEW'].mean())
+    MDW_origin_sunday = MDW_origin.query("DAY_OF_WEEK == 7")
+    MDW_sunday_count = MDW_origin_sunday['ORIGIN'].count()
+    MDW_sunday_delays = MDW_origin_sunday.query("DEP_DELAY_NEW > 0")
+    MDW_sunday_delays_count = MDW_sunday_delays['ORIGIN'].count()
+    MDW_sunday_delays_percent = round(MDW_sunday_delays_count / MDW_sunday_count * 100,1)
+    if MDW_sunday_delays_count == 0:
+        MDW_sunday_delays_length = 0
+    else:
+        MDW_sunday_delay_length = round(MDW_sunday_delays['DEP_DELAY_NEW'].mean())
 
 
 
