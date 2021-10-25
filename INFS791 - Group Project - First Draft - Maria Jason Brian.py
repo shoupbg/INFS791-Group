@@ -255,7 +255,7 @@ if ORD_origin_count < 1 and MDW_origin_count > 0:
 
 
 # Statistics - I think this works now, not sure the data is meaningful
-"""
+
 without_delay = destination_flights.query("ARR_DELAY_NEW == 0").ARR_DELAY_NEW.count()
 with_delay = destination_flights.query("ARR_DELAY_NEW > 0").ARR_DELAY_NEW.count()
 print("\nCount of flights without delay ", without_delay)
@@ -289,22 +289,22 @@ print("\n",corr_delays.columns)
 print("\n",corr_delays.corr())
 """
 
-"""
+
 # Bar chart
 
 # Change data type of pickup_community_area to integer
 # trips_df = trips_df.astype({'pickup_community_area':int})
 
 # trips_df = trips_df.set_index('pickup_community_area')
-destination_flights = destination_flights.set_index('TimeOfDay')
+destination_flights = destination_flights.set_index('DEST')
 
 
 # Create DataFrame groupby object with count of pickups by area
-delay = destination_flights.groupby('TimeOfDay').count()
+delay = destination_flights.groupby('ORIGIN').count()
 print(delay)
 
 x_labels = pd.Series(delay.index.values)
-y_values = pd.Series(delay['TimeOfDay'].values)
+y_values = pd.Series(delay['MONTH'].values)
 
 # Create an array of the number of categories to use in the histogram
 bars = np.array(range(len(x_labels)))
@@ -318,6 +318,3 @@ plt.title('Delay by month')
 plt.xlabel('Origin')
 plt.ylabel('Frequency')
 plt.show()
-
-# what place and time
-"""
