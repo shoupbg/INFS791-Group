@@ -8,6 +8,7 @@ import numpy as np
 from statistics import *
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy import stats
 
 # Access airport data file and create a list of valid airport codes from the flight data file
 airport_data = pd.read_csv('airport_data.csv')
@@ -192,18 +193,16 @@ print(destination_flights['ARR_DELAY_NEW'].describe())
 
 #this is not working with package
 
-"""
-print("mean value: ", round(mean(destination_flights['ARR_DELAY_NEW']), 2))
-print("median value: ", median(destination_flights.ARR_DELAY_NEW))
+
+print("mean value: ", round(np.nanmean(destination_flights['ARR_DELAY_NEW']), 2))
+print("median value: ", np.nanmedian(destination_flights.ARR_DELAY_NEW))
 try:
-    print("mode value: ", mode(destination_flights.ARR_DELAY_NEW))
+    print("mode value: ", stats.mode(destination_flights.ARR_DELAY_NEW)[0])
 except StatisticsError:
     print("** Data does not have a unique mode **")
 print("sample standard deviation: ", \
-      round(stdev(destination_flights.ARR_DELAY_NEW), 2))
-print("population standard deviation: ", \
-      round(pstdev(destination_flights.ARR_DELAY_NEW), 2))
-"""
+      round(np.std(destination_flights.ARR_DELAY_NEW), 2))
+
 
 #if we do correlation I need variables to correlate
 """
@@ -225,7 +224,9 @@ destination_flights = destination_flights.set_index('DEST')
 
 
 # Create DataFrame groupby object with count of pickups by area
-delay = destination_flights.groupby('ORIGIN').count()
+# delay = destination_flights.groupby('ORIGIN').count()
+delay = destination_flights.groupby('ORIGIN').apply(lambda x:
+                                                 100 * x / float(x.sum()))
 print(delay)
 
 x_labels = pd.Series(delay.index.values)
