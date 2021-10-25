@@ -304,7 +304,7 @@ delay = destination_flights.groupby('TimeOfDay').count()
 print(delay)
 
 x_labels = pd.Series(delay.index.values)
-y_values = pd.Series(delay['TimeOfDay'].values)
+y_values = pd.Series(delay['ORIGIN'].values)
 
 # Create an array of the number of categories to use in the histogram
 bars = np.array(range(len(x_labels)))
@@ -314,10 +314,31 @@ plt.xticks(bars, x_labels)
 
 plt.bar(bars, y_values)
 
-plt.title('Delay by month')
-plt.xlabel('Origin')
-plt.ylabel('Frequency')
+plt.title('Delay by Time of Day')
+plt.xlabel('Time of Day')
+plt.ylabel('Delays')
 plt.show()
 
 # what place and time
 """
+# Heatmap
+
+heatmap_data = destination_flights[['TimeOfDay','ORIGIN']]
+delays = pd.crosstab(heatmap_data.TimeOfDay,\
+     heatmap_data.ORIGIN).stack().\
+     reset_index().rename(columns={0:'ARR_DELAY_NEW'})
+
+#delays = trips_freq.query('numtrips>20')
+#trips_freq = trips_freq.pivot("pickup_community_area",
+#     "dropoff_community_area", "numtrips")
+#trips_freq = trips_freq.replace(np.nan, 0)
+#trips_freq = trips_freq.astype(int)
+
+fig = plt.figure()
+
+# Change colormap used to range from yellow to green to blue
+ax = sns.heatmap(delays, annot = True, fmt = "d", cmap = "YlGnBu")
+plt.show()
+
+
+
