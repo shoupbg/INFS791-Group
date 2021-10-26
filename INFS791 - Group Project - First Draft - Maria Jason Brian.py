@@ -62,7 +62,7 @@ if destination_question.lower() == "lookup":
     destination_question  = lookup()
 
 
-airport_data["Code"] = airport_data["Description"].map(d)
+
 
 
 """
@@ -74,8 +74,11 @@ descriptions = airport_data.Description.to_list()
 
 codesdescriptions = dict(zip(codes, descriptions))
 
-airport_data["Code"] = airport_data["Description"].map(codesdescription)
+airport_data["Code"] = airport_data["Description"].map(codesdescriptions)
 
+destcode = input("please enter a destination code: ")
+
+print("the information corresponding to that code: ", codesdescriptions[destcode])
 
 
 
