@@ -61,8 +61,35 @@ def lookup():
 if destination_question.lower() == "lookup":
     destination_question  = lookup()
 
+
+airport_data["Code"] = airport_data["Description"].map(d)
+
+
 """
-Need to fix this - shouldn't be hard to retrieve the Description from the airport_data.csv file based on the "destination_question" value
+print(airport_data['Description'].where(airport_data['Code']==destination_question))
+"""
+
+codes = airport_data.Code.to_list()
+descriptions = airport_data.Description.to_list()
+
+codesdescriptions = dict(zip(codes, descriptions))
+
+airport_data["Code"] = airport_data["Description"].map(codesdescription)
+
+
+
+
+
+
+"""
+airport_data['Code Name'] = airport_data['Code']+airport_data['Description']
+
+print()
+"""
+
+#Need to fix this - shouldn't be hard to retrieve the Description from the airport_data.csv file based on the "destination_question" value
+
+"""
 
 # Lookup name of city that destination airport (code) is located in
 
