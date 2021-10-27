@@ -31,11 +31,23 @@ available_airports = airport_data.query("Code == @airports_served_list")
 
 # Ask user to enter city name or use lookup tool
 
+codes = airport_data.Code.to_list()
+descriptions = airport_data.Description.to_list()
+
+codesdescriptions = dict(zip(codes, descriptions))
+
+airport_data["Code"] = airport_data["Description"].map(codesdescriptions)
+
+
 print ("\nAre you planning to travel over winter break?")
 print ("\nThis program will help you choose a flight in order to minimize delays.")
 print ("\nFirst, we need to know where you're going.")
 print ("If you know the three-letter code for the airport you're flying to, enter it now.")
 destination_question = input ("If you don't know the code, type 'lookup': ")
+
+
+
+
 
 
 # Starts lookup loop if applicable and ends with entry of airport code
@@ -55,34 +67,16 @@ def lookup():
         print("\nBelow are airports in the selected city served by airports in Chicago:")
         print("\n", possible_airport_codes.to_string(index=False))
         destination_question = input("\nPlease enter the three-letter code of the airport you're flying to:  ")
-    return destination_question
+    return destcode
 
 
 if destination_question.lower() == "lookup":
     destination_question  = lookup()
 
 
-
-
-
 """
 print(airport_data['Description'].where(airport_data['Code']==destination_question))
 """
-
-codes = airport_data.Code.to_list()
-descriptions = airport_data.Description.to_list()
-
-codesdescriptions = dict(zip(codes, descriptions))
-
-airport_data["Code"] = airport_data["Description"].map(codesdescriptions)
-
-destcode = input("please enter a destination code: ")
-
-print("the information corresponding to that code: ", codesdescriptions[destcode])
-
-
-
-
 
 """
 airport_data['Code Name'] = airport_data['Code']+airport_data['Description']
@@ -111,7 +105,7 @@ while destination_question.upper() not in airports_served_list:
     if destination_question.lower() == "lookup":
         destination_question = lookup()
 else:
-    print(f"\nWe will analyze the delay history of flights from Chicago to " +destination_question)
+    print(f"\nWe will analyze the delay history of flights from Chicago to ", codesdescriptions[destination_question])
 
 
 # Once we have a valid airport destination code, we query the data to see if there are flights between O'Hare and/or Midway and the destination
@@ -119,16 +113,16 @@ else:
 destination_flights = flight_data_filtered.query("DEST == @destination_question.upper()")
 num_dest = destination_flights['DEST'].count()
 
-print(f"\nThere were {num_dest} flights from Chicago to {destination_question} in December 2017, 2018, 2019 & 2020")
+print(f"\nThere were {num_dest} flights from Chicago to {codesdescriptions[destination_question]} in December 2017, 2018, 2019 & 2020")
 
 ORD_origin = destination_flights.query("ORIGIN == 'ORD'")
 ORD_origin_count = ORD_origin['ORIGIN'].count()
 MDW_origin = destination_flights.query("ORIGIN == 'MDW'")
 MDW_origin_count = MDW_origin['ORIGIN'].count()
 if ORD_origin_count < 1:
-    print(f"\nThere were no flights from O'Hare to {destination_question}, so we'll focus on flights from Midway.")
+    print(f"\nThere were no flights from O'Hare to {destcode}, so we'll focus on flights from Midway.")
 if MDW_origin_count <1:
-    print(f"\nThere were no flights from Midway to {destination_question}, so we'll focus on flights from O'Hare.")
+    print(f"\nThere were no flights from Midway to {destcode}, so we'll focus on flights from O'Hare.")
 if ORD_origin_count > 0 and MDW_origin_count > 0:
    print(f"Of those flights, {ORD_origin_count} were from O'Hare and {MDW_origin_count} were from Midway") 
 
