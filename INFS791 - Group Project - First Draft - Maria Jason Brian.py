@@ -8,6 +8,7 @@ import numpy as np
 from statistics import *
 import matplotlib.pyplot as plt
 import numpy as np
+import seaborn as sns
 from scipy import stats
 import statsmodels.formula.api as smf
 
@@ -24,6 +25,7 @@ flight_data["ARR_DELAY_NEW"]= flight_data["ARR_DELAY_NEW"].fillna(0).astype(int)
 
 flight_data_cleaned = flight_data[flight_data['ARR_DELAY_NEW'].notnull()]
 flight_data_filtered = flight_data_cleaned.query("ORIGIN == 'ORD' or ORIGIN == 'MDW'")
+
 
 # Creates list of valid destinations from ORD or MDW
 airports_served = flight_data_filtered.DEST.unique()
@@ -257,5 +259,46 @@ plt.title('Delay by Time of Day')
 plt.xlabel('Time of Day')
 plt.ylabel('Delays')
 plt.show()
+<<<<<<< Updated upstream
+=======
 
 """
+"""
+# Heatmap
+
+heatmap = destination_flights[['TimeOfDay','ORIGIN']]
+
+# Create frequency table using crosstabs function
+delays_freq = pd.crosstab(destination_flights.TimeOfDay,\
+     destination_flights.ORIGIN)
+print("After crosstab, type of delays_freq: ", type(delays_freq))
+print(delays_freq.head(10), "\n")
+
+fig = plt.figure()
+
+# Create heatmap from frequency table (in DataFrame)
+ax = sns.heatmap(delays_freq)
+
+plt.show()
+"""
+
+# Scatterplot of all ORD/MDW departures with ARR_DELAY_NEW > 0 based on departure time and length of delay
+# The results are interesting - there are notably more long delays for flights that depart later in the day!
+all_delayed_flights = flight_data_filtered[['CRS_DEP_TIME','ARR_DELAY_NEW']].query('ARR_DELAY_NEW > 15')
+
+# Create series for each of the two columns to use in scatterplot
+dep_time_series = all_delayed_flights.CRS_DEP_TIME
+delay_series = all_delayed_flights.ARR_DELAY_NEW
+
+fig = plt.figure()
+
+# Specify market and line style (here, none) to use
+plt.plot(dep_time_series,delay_series,marker=".",linestyle="none")
+plt.title('Length of Delay by Time of Departure (when delay > 15 min.)')
+plt.xlabel('Time of Dearture')
+plt.ylabel('Length of Delay')
+
+plt.show()
+
+
+
