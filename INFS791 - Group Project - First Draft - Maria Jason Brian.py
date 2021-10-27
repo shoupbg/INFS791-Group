@@ -8,6 +8,7 @@ import numpy as np
 from statistics import *
 import matplotlib.pyplot as plt
 import numpy as np
+import seaborn as sns
 from scipy import stats
 
 # Access airport data file and create a list of valid airport codes from the flight data file
@@ -23,6 +24,7 @@ flight_data["ARR_DELAY_NEW"]= flight_data["ARR_DELAY_NEW"].fillna(0).astype(int)
 
 flight_data_cleaned = flight_data[flight_data['ARR_DELAY_NEW'].notnull()]
 flight_data_filtered = flight_data_cleaned.query("ORIGIN == 'ORD' or ORIGIN == 'MDW'")
+
 
 # Creates list of valid destinations from ORD or MDW
 airports_served = flight_data_filtered.DEST.unique()
@@ -140,20 +142,22 @@ if ORD_origin_count > 0:
     ORD_morning_count = ORD_origin_morning['ORIGIN'].count()
     ORD_morning_delays = ORD_origin_morning.query("ARR_DELAY_NEW > 0")
     ORD_morning_delays_count = ORD_morning_delays['ORIGIN'].count()
-    ORD_morning_delays_percent = round(ORD_morning_delays_count / ORD_morning_count * 100,1)
     if ORD_morning_delays_count == 0:
+        ORD_morning_delays_percent = 0
         ORD_morning_delay_length = 0
     else:
+        ORD_morning_delays_percent = round(ORD_morning_delays_count / ORD_morning_count * 100,1)
         ORD_morning_delay_length = round(ORD_morning_delays['ARR_DELAY_NEW'].mean())
 
     ORD_origin_afternoon = ORD_origin.query("TimeOfDay == 'Afternoon'")
     ORD_afternoon_count = ORD_origin_afternoon['ORIGIN'].count()
     ORD_afternoon_delays = ORD_origin_afternoon.query("ARR_DELAY_NEW > 0")
     ORD_afternoon_delays_count = ORD_afternoon_delays['ORIGIN'].count()
-    ORD_afternoon_delays_percent = round(ORD_afternoon_delays_count / ORD_afternoon_count * 100,1)
     if ORD_afternoon_delays_count == 0:
+        ORD_afternoon_delays_percent = 0
         ORD_afternoon_delay_length = 0
     else:
+        ORD_afternoon_delays_percent = round(ORD_afternoon_delays_count / ORD_afternoon_count * 100,1)
         ORD_afternoon_delay_length = round(ORD_afternoon_delays['ARR_DELAY_NEW'].mean())
 
 
@@ -162,10 +166,11 @@ if ORD_origin_count > 0:
     ORD_evening_count = ORD_origin_evening['ORIGIN'].count()
     ORD_evening_delays = ORD_origin_evening.query("ARR_DELAY_NEW > 0")
     ORD_evening_delays_count = ORD_evening_delays['ORIGIN'].count()
-    ORD_evening_delays_percent = round(ORD_evening_delays_count / ORD_evening_count * 100,1)
     if ORD_evening_delays_count > 0:
+        ORD_evening_delays_percent = 0
         ORD_evening_delay_length = round(ORD_evening_delays['ARR_DELAY_NEW'].mean())
     else:
+        ORD_evening_delays_percent = round(ORD_evening_delays_count / ORD_evening_count * 100,1)
         ORD_evening_delay_length = 0
 
 
@@ -190,20 +195,22 @@ if MDW_origin_count > 0:
     MDW_morning_count = MDW_origin_morning['ORIGIN'].count()
     MDW_morning_delays = MDW_origin_morning.query("ARR_DELAY_NEW > 0")  
     MDW_morning_delays_count = MDW_morning_delays['ORIGIN'].count()
-    MDW_morning_delays_percent = round(MDW_morning_delays_count / MDW_morning_count * 100,1)
     if MDW_morning_delays_count == 0:
+        MDW_morning_delays_percent = 0
         MDW_morning_delay_length = 0
     else:
+        MDW_morning_delays_percent = round(MDW_morning_delays_count / MDW_morning_count * 100,1)
         MDW_morning_delay_length = round(MDW_morning_delays['ARR_DELAY_NEW'].mean())
 
     MDW_origin_afternoon = MDW_origin.query("TimeOfDay == 'Afternoon'")
     MDW_afternoon_count = MDW_origin_afternoon['ORIGIN'].count()
     MDW_afternoon_delays = MDW_origin_afternoon.query("ARR_DELAY_NEW > 0")
     MDW_afternoon_delays_count = MDW_afternoon_delays['ORIGIN'].count()
-    MDW_afternoon_delays_percent = round(MDW_afternoon_delays_count / MDW_afternoon_count * 100,1)
     if MDW_afternoon_delays_count == 0:
+        MDW_afternoon_delays_percent = 0
         MDW_afternoon_delay_length = 0
     else:
+        MDW_afternoon_delays_percent = round(MDW_afternoon_delays_count / MDW_afternoon_count * 100,1)
         MDW_afternoon_delay_length = round(MDW_afternoon_delays['ARR_DELAY_NEW'].mean())
 
 
@@ -212,11 +219,12 @@ if MDW_origin_count > 0:
     MDW_evening_count = MDW_origin_evening['ORIGIN'].count()
     MDW_evening_delays = MDW_origin_evening.query("ARR_DELAY_NEW > 0")
     MDW_evening_delays_count = MDW_evening_delays['ORIGIN'].count()
-    MDW_evening_delays_percent = round(MDW_evening_delays_count / MDW_evening_count * 100,1)
     if MDW_evening_delays_count > 0:
-        MDW_evening_delay_length = round(MDW_evening_delays['ARR_DELAY_NEW'].mean())
-    else:
+        MDW_evening_delays_percent = 0
         MDW_evening_delay_length = 0
+    else:
+        MDW_evening_delays_percent = round(MDW_evening_delays_count / MDW_evening_count * 100,1)
+        MDW_evening_delay_length = round(MDW_evening_delays['ARR_DELAY_NEW'].mean())
 
 
 
@@ -427,7 +435,7 @@ if MDW_origin_count > 0:
 
 
 # Statistics - I think this works now, not sure the data is meaningful
-
+"""
 without_delay = destination_flights.query("ARR_DELAY_NEW == 0").ARR_DELAY_NEW.count()
 with_delay = destination_flights.query("ARR_DELAY_NEW > 0").ARR_DELAY_NEW.count()
 print("\nCount of flights without delay ", without_delay)
@@ -448,7 +456,7 @@ except StatisticsError:
 print("sample standard deviation: ", \
       round(np.std(destination_flights.ARR_DELAY_NEW), 2))
 
-
+"""
 #if we do correlation I need variables to correlate
 """
 # For correlation, can we only use columns that are numeric?  Here's a correlation that runs, but I'm not sure the data is meaningful
@@ -461,7 +469,7 @@ print("\n",corr_delays.columns)
 print("\n",corr_delays.corr())
 """
 
-
+"""
 # Bar chart
 
 # Change data type of pickup_community_area to integer
@@ -490,3 +498,46 @@ plt.title('Delay by Time of Day')
 plt.xlabel('Time of Day')
 plt.ylabel('Delays')
 plt.show()
+<<<<<<< Updated upstream
+=======
+
+"""
+"""
+# Heatmap
+
+heatmap = destination_flights[['TimeOfDay','ORIGIN']]
+
+# Create frequency table using crosstabs function
+delays_freq = pd.crosstab(destination_flights.TimeOfDay,\
+     destination_flights.ORIGIN)
+print("After crosstab, type of delays_freq: ", type(delays_freq))
+print(delays_freq.head(10), "\n")
+
+fig = plt.figure()
+
+# Create heatmap from frequency table (in DataFrame)
+ax = sns.heatmap(delays_freq)
+
+plt.show()
+"""
+
+# Scatterplot of all ORD/MDW departures with ARR_DELAY_NEW > 0 based on departure time and length of delay
+# The results are interesting - there are notably more long delays for flights that depart later in the day!
+all_delayed_flights = flight_data_filtered[['CRS_DEP_TIME','ARR_DELAY_NEW']].query('ARR_DELAY_NEW > 15')
+
+# Create series for each of the two columns to use in scatterplot
+dep_time_series = all_delayed_flights.CRS_DEP_TIME
+delay_series = all_delayed_flights.ARR_DELAY_NEW
+
+fig = plt.figure()
+
+# Specify market and line style (here, none) to use
+plt.plot(dep_time_series,delay_series,marker=".",linestyle="none")
+plt.title('Length of Delay by Time of Departure (when delay > 15 min.)')
+plt.xlabel('Time of Dearture')
+plt.ylabel('Length of Delay')
+
+plt.show()
+
+
+
