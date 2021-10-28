@@ -70,7 +70,7 @@ def lookup():
         print("\nBelow are airports in the selected city served by airports in Chicago:")
         print("\n", possible_airport_codes.to_string(index=False))
         destination_question = input("\nPlease enter the three-letter code of the airport you're flying to:  ")
-    return destcode
+    return destination_question.upper()
 
 
 if destination_question.lower() == "lookup":
@@ -108,6 +108,7 @@ while destination_question.upper() not in airports_served_list:
     if destination_question.lower() == "lookup":
         destination_question = lookup()
 else:
+    destination_question = destination_question.upper()
     print(f"\nWe will analyze the delay history of flights from Chicago to ", codesdescriptions[destination_question])
 
 
