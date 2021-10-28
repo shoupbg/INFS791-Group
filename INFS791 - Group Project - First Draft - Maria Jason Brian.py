@@ -156,10 +156,10 @@ for index, row in count_by_origin.iterrows():
     else:
         print(f"All flights of those flights were from {ChicagoAirports[index]} to {codesdescriptions[destination_question]}.")
 print()
+
 i = 0
 min_percent = 0
 min_airport = ""
-origin_delay_mean = group_delay_origin.agg({'ARR_DELAY_NEW': 'mean'})
 for index, row in total_and_delay.iterrows():
     delay_percent = round(row['ARR_DELAY_NEW_delay'] / row['ARR_DELAY_NEW_total'] * 100, 1)
     if i == 0:
@@ -172,8 +172,9 @@ for index, row in total_and_delay.iterrows():
             min_airport = index
     print(f"{delay_percent}% of the {ChicagoAirports[index]} flights were delayed")
 else:
+    mean = group_delay_origin.agg({'ARR_DELAY_NEW': 'mean'})
     print(f"Overall, {ChicagoAirports[min_airport]} is a better option for this route because fewer flights are delayed.")
-    # print("--------Mean", group_delay_origin.agg({'ARR_DELAY_NEW': 'mean'}))
+    print(f"Mean of delays for this airport is {round(mean['ARR_DELAY_NEW'][min_airport],1)} minutes")
 
 print('\n{:<10s}{:<12s}{:<12s}{:<12s}'.format("Airport", "Time", "Flights", "Delays (%)"))
 i = 0
@@ -195,8 +196,10 @@ for index, data in total_and_delay_by_time.iterrows():
 #        print(f"{row['ARR_DELAY_NEW_total']} of the {index[0]} flights were in the {index[1]}")
 #        print(f"{index[0]} flights delayed were:  {index[1]} {time_delay}%")
 else:
+    mean = group_delay_time.agg({'ARR_DELAY_NEW': 'mean'})
     print(f"{min_time} is the best time to depart {ChicagoAirports[min_airport]} on this route to minimize delays.")
-    # print("--------Mean", group_delay_time.agg({'ARR_DELAY_NEW': 'mean'}))
+    print(f"Mean of delays for this airport and time of day is {round(mean['ARR_DELAY_NEW'][min_airport][min_time],1)} minutes")
+
 
 print('\n{:<10s}{:<12s}{:<12s}{:<12s}'.format("Airport", "Day", "Flights", "Delays (%)"))
 i = 0
@@ -219,98 +222,83 @@ for index, data in total_and_delay_by_day.iterrows():
         print('{:<10s}{:<12s}{:<12s}{:<12s}'.format(str(ChicagoAirports[index[0]]), week_day[index[1]], str(row['ARR_DELAY_NEW_total']), str(day_delay)))
 #        print(f"{index[0]} flights delayed were:  {week_day[index[1]]} {day_delay}%")
 else:
+    mean = group_delay_day.agg({'ARR_DELAY_NEW': 'mean'})
     print(f"{week_day[min_day]} is the best day to depart {ChicagoAirports[min_airport]} on this route to minimize delays.")
-    # print("--------Mean", group_delay_day.agg({'ARR_DELAY_NEW': 'mean'}))
+    print(f"Mean of delays for this airport and weekday is {round(mean['ARR_DELAY_NEW'][min_airport][min_day],1)} minutes")
 
-"""
-# Regression
-
-model= smf.logit(formula="ARR_DELAY_NEW ~ TimeOfDay", data= destination_flights).fit()
-
-# Print out the model summary information
-print(model.summary())
+print("\n----------------------------------------------------")
+continue_answer = input("Do you want to see further visual comparison between the two airports? (y/n)").lower()
+while continue_answer not in ('y', 'n'):
+    print("\nSorry, not valid a answer. Try again.")
+    continue_answer = input("Do you want to see further visual comparison between the two airports? (y/n)").lower()
 
 
+if continue_answer == 'y':
+    # Bar chart
 
-# Bar chart
+    s = "MDW|ORD".split("|")
+    df = group_delay_day.agg({'ARR_DELAY_NEW': 'mean'})
+    index_graph = np.arange(7)
+    bar_width = 0
+    fig, ax = plt.subplots()
+    for index in reversed(df['ARR_DELAY_NEW'].index.get_level_values('ORIGIN').unique()):
+        ax.bar(index_graph + bar_width, df['ARR_DELAY_NEW'][index], 0.35,
+               label=ChicagoAirports[index])
+        bar_width = 0.35
 
-# Change data type of pickup_community_area to integer
-# trips_df = trips_df.astype({'pickup_community_area':int})
+    ax.set_xlabel('Weekday')
+    ax.set_ylabel('Mean Delay')
+    ax.set_title('Delay by weekday and airport')
+    ax.set_xticks(index_graph + bar_width / 2)
+    ax.set_xticklabels(["Mon", "Tue", "Wed", "Thur", "Fri", "Sat", "Sun"])
+    ax.legend()
 
-# trips_df = trips_df.set_index('pickup_community_area')
-destination_flights = destination_flights.set_index('DEST')
+    plt.show()
 
 
-# Create DataFrame groupby object with count of pickups by area
-# delay = destination_flights.groupby('TimeOfDay').sum()
-delay = destination_flights.groupby('TimeOfDay').agg({'ARR_DELAY_NEW': 'sum'})
-delay_percent = delay / delay['ARR_DELAY_NEW'].sum()
+    # Heatmap
 
-count_by_week = destination_flights.groupby(['ORIGIN','DAY_OF_WEEK']).agg({'ARR_DELAY_NEW': 'count'})
-delay_by_week = destination_flights.query("DEP_DELAY_NEW > 0").groupby(['ORIGIN','DAY_OF_WEEK']).agg({'ARR_DELAY_NEW': 'count'})
+    heatmap = destination_flights[['TimeOfDay', 'ORIGIN']]
 
-print(type(count_by_week))
+    # Create frequency table using crosstabs function
+    delays_freq = pd.crosstab(destination_flights.TimeOfDay, \
+                              destination_flights.ORIGIN)
+    print("After crosstab, type of delays_freq: ", type(delays_freq))
+    print(delays_freq.head(10), "\n")
 
-print(delay)
-print(delay_percent)
+    fig = plt.figure()
 
-print(count_by_week , delay_by_week)
+    # Create heatmap from frequency table (in DataFrame)
+    ax = sns.heatmap(delays_freq)
 
-x_labels = pd.Series(delay.index.values)
-y_values = pd.Series(delay['ARR_DELAY_NEW'].values)
+    plt.show()
 
-# Create an array of the number of categories to use in the histogram
-bars = np.array(range(len(x_labels)))
 
-# Use xticks method to specify actual values of pickup locations
-plt.xticks(bars, x_labels)
+print("\n----------------------------------------------------")
+continue_answer = input("Do you want to see further visual comparison between delays and time of departure? (y/n)").lower()
+while continue_answer not in ('y', 'n'):
+    print("\nSorry, not valid a answer. Try again.")
+    continue_answer = input("Do you want to see further visual comparison between delays and time of departure? (y/n)").lower()
 
-plt.bar(bars, y_values)
+if continue_answer == 'y':
+    # Scatterplot of all ORD/MDW departures with ARR_DELAY_NEW > 0 based on departure time and length of delay
+    # The results are interesting - there are notably more long delays for flights that depart later in the day!
+    all_delayed_flights = flight_data_filtered[['CRS_DEP_TIME', 'ARR_DELAY_NEW']].query('ARR_DELAY_NEW > 15')
 
-plt.title('Delay by Time of Day')
-plt.xlabel('Time of Day')
-plt.ylabel('Delays')
-plt.show()
-<<<<<<< Updated upstream
-=======
+    # Create series for each of the two columns to use in scatterplot
+    dep_time_series = all_delayed_flights.CRS_DEP_TIME
+    delay_series = all_delayed_flights.ARR_DELAY_NEW
 
-"""
-"""
-# Heatmap
+    fig = plt.figure()
 
-heatmap = destination_flights[['TimeOfDay','ORIGIN']]
+    # Specify market and line style (here, none) to use
+    plt.plot(dep_time_series, delay_series, marker=".", linestyle="none")
+    plt.title('Length of Delay by Time of Departure (when delay > 15 min.)')
+    plt.xlabel('Time of Departure')
+    plt.ylabel('Length of Delay (minutes)')
 
-# Create frequency table using crosstabs function
-delays_freq = pd.crosstab(destination_flights.TimeOfDay,\
-     destination_flights.ORIGIN)
-print("After crosstab, type of delays_freq: ", type(delays_freq))
-print(delays_freq.head(10), "\n")
+    plt.show()
 
-fig = plt.figure()
-
-# Create heatmap from frequency table (in DataFrame)
-ax = sns.heatmap(delays_freq)
-
-plt.show()
-"""
-
-# Scatterplot of all ORD/MDW departures with ARR_DELAY_NEW > 0 based on departure time and length of delay
-# The results are interesting - there are notably more long delays for flights that depart later in the day!
-all_delayed_flights = flight_data_filtered[['CRS_DEP_TIME','ARR_DELAY_NEW']].query('ARR_DELAY_NEW > 15')
-
-# Create series for each of the two columns to use in scatterplot
-dep_time_series = all_delayed_flights.CRS_DEP_TIME
-delay_series = all_delayed_flights.ARR_DELAY_NEW
-
-fig = plt.figure()
-
-# Specify market and line style (here, none) to use
-plt.plot(dep_time_series,delay_series,marker=".",linestyle="none")
-plt.title('Length of Delay by Time of Departure (when delay > 15 min.)')
-plt.xlabel('Time of Departure')
-plt.ylabel('Length of Delay (minutes)')
-
-plt.show()
 
 
 
