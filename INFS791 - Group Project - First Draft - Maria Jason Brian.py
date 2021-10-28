@@ -110,7 +110,7 @@ while destination_question.upper() not in airports_served_list:
         destination_question = lookup()
 else:
     destination_question = destination_question.upper()
-    print(f"\nWe will analyze the delay history of flights from Chicago to ", codesdescriptions[destination_question])
+#    print(f"\nWe will analyze the delay history of flights from Chicago to ", codesdescriptions[destination_question])
 
 
 # Once we have a valid airport destination code, we query the data to see if there are flights between O'Hare and/or Midway and the destination
@@ -154,7 +154,7 @@ for index, row in count_by_origin.iterrows():
     elif len(count_by_origin) == 0:
         print(f"\nNo airport go to {destination_question}.")
     else:
-        print(f"\nAll flights of those flights were from {ChicagoAirports[index]} to {codesdescriptions[destination_question]}.")
+        print(f"All flights of those flights were from {ChicagoAirports[index]} to {codesdescriptions[destination_question]}.")
 print()
 i = 0
 min_percent = 0
@@ -216,7 +216,7 @@ for index, data in total_and_delay_by_day.iterrows():
                 if day_delay < min_percent:
                     min_percent = day_delay
                     min_day = index[1]
-        print('{:<10s}{:<12s}{:<12s}{:<12s}'.format(str(ChicagoAirports[index[0]]), week_day[index[1]], str(row['ARR_DELAY_NEW_total']), str(time_delay)))
+        print('{:<10s}{:<12s}{:<12s}{:<12s}'.format(str(ChicagoAirports[index[0]]), week_day[index[1]], str(row['ARR_DELAY_NEW_total']), str(day_delay)))
 #        print(f"{index[0]} flights delayed were:  {week_day[index[1]]} {day_delay}%")
 else:
     print(f"{week_day[min_day]} is the best day to depart {ChicagoAirports[min_airport]} on this route to minimize delays.")
