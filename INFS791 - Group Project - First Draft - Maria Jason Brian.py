@@ -67,7 +67,7 @@ def lookup():
         print("\nBelow are airports in the selected city served by airports in Chicago:")
         print("\n", possible_airport_codes.to_string(index=False))
         destination_question = input("\nPlease enter the three-letter code of the airport you're flying to:  ")
-    return codesdescriptions[destination_question]
+    return destcode
 
 
 if destination_question.lower() == "lookup":
@@ -120,9 +120,9 @@ ORD_origin_count = ORD_origin['ORIGIN'].count()
 MDW_origin = destination_flights.query("ORIGIN == 'MDW'")
 MDW_origin_count = MDW_origin['ORIGIN'].count()
 if ORD_origin_count < 1:
-    print(f"\nThere were no flights from O'Hare to {codesdescriptions[destination_question]}, so we'll focus on flights from Midway.")
+    print(f"\nThere were no flights from O'Hare to {destcode}, so we'll focus on flights from Midway.")
 if MDW_origin_count <1:
-    print(f"\nThere were no flights from Midway to {codesdescriptions[destination_question]}, so we'll focus on flights from O'Hare.")
+    print(f"\nThere were no flights from Midway to {destcode}, so we'll focus on flights from O'Hare.")
 if ORD_origin_count > 0 and MDW_origin_count > 0:
    print(f"Of those flights, {ORD_origin_count} were from O'Hare and {MDW_origin_count} were from Midway") 
 
