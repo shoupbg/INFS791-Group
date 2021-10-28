@@ -8,11 +8,14 @@ import numpy as np
 from statistics import *
 import matplotlib.pyplot as plt
 import numpy as np
+import seaborn as sns
 from scipy import stats
+import statsmodels.formula.api as smf
 
 # Access airport data file and create a list of valid airport codes from the flight data file
 airport_data = pd.read_csv('airport_data.csv')
 flight_data = pd.concat(map(pd.read_csv, ['2020DecemberIllinoisFlights.csv', '2019DecemberIllinoisFlights.csv','2018DecemberIllinoisFlights.csv', '2017DecemberIllinoisFlights.csv']))
+
 
 flight_data['TimeOfDay'] = np.where(flight_data['CRS_DEP_TIME'] <= 1200, 'Morning', 
                       np.where(flight_data['CRS_DEP_TIME'] >= 1700, 'Evening', 'Afternoon'))
@@ -23,6 +26,7 @@ flight_data["ARR_DELAY_NEW"]= flight_data["ARR_DELAY_NEW"].fillna(0).astype(int)
 
 flight_data_cleaned = flight_data[flight_data['ARR_DELAY_NEW'].notnull()]
 flight_data_filtered = flight_data_cleaned.query("ORIGIN == 'ORD' or ORIGIN == 'MDW'")
+
 
 # Creates list of valid destinations from ORD or MDW
 airports_served = flight_data_filtered.DEST.unique()
@@ -43,7 +47,7 @@ print ("\nAre you planning to travel over winter break?")
 print ("\nThis program will help you choose a flight in order to minimize delays.")
 print ("\nFirst, we need to know where you're going.")
 print ("If you know the three-letter code for the airport you're flying to, enter it now.")
-destination_question = input ("If you don't know the code, type 'lookup': ")
+destination_question = input ("If you don't know the code, type 'lookup': ").upper()
 
 
 
@@ -105,7 +109,8 @@ while destination_question.upper() not in airports_served_list:
     if destination_question.lower() == "lookup":
         destination_question = lookup()
 else:
-    print(f"\nWe will analyze the delay history of flights from Chicago to ", codesdescriptions[destination_question])
+    destination_question = destination_question.upper()
+#    print(f"\nWe will analyze the delay history of flights from Chicago to ", codesdescriptions[destination_question])
 
 
 # Once we have a valid airport destination code, we query the data to see if there are flights between O'Hare and/or Midway and the destination
@@ -113,353 +118,118 @@ else:
 destination_flights = flight_data_filtered.query("DEST == @destination_question.upper()")
 num_dest = destination_flights['DEST'].count()
 
-print(f"\nThere were {num_dest} flights from Chicago to {codesdescriptions[destination_question]} in December 2017, 2018, 2019 & 2020")
+print(f"\nWe counted {num_dest} flights from Chicago to {codesdescriptions[destination_question]}")
 
-ORD_origin = destination_flights.query("ORIGIN == 'ORD'")
-ORD_origin_count = ORD_origin['ORIGIN'].count()
-MDW_origin = destination_flights.query("ORIGIN == 'MDW'")
-MDW_origin_count = MDW_origin['ORIGIN'].count()
-if ORD_origin_count < 1:
-    print(f"\nThere were no flights from O'Hare to {codesdescriptions[destination_question]}, so we'll focus on flights from Midway.")
-if MDW_origin_count <1:
-    print(f"\nThere were no flights from Midway to {codesdescriptions[destination_question]}, so we'll focus on flights from O'Hare.")
-if ORD_origin_count > 0 and MDW_origin_count > 0:
-   print(f"Of those flights, {ORD_origin_count} were from O'Hare and {MDW_origin_count} were from Midway") 
-
-if ORD_origin_count > 0:
-
-    # Following are calculations for total O'Hare flights    
-    ORD_delays = ORD_origin.query("ARR_DELAY_NEW > 0")
-    ORD_delays_count = ORD_delays['ORIGIN'].count()
-    ORD_delay_percent = round(ORD_delays_count / ORD_origin_count * 100,1)
-    ORD_delay_length = round(ORD_delays['ARR_DELAY_NEW'].mean())
+# Dictionary to print O'Hare or Midway instead of ORD or MDW
+ChicagoAirports = {
+    "MDW" : "Midway",
+    "ORD" : "O'Hare"
+    }
 
 
-    # Following are calculations for O'Hare flights by time of day
-    ORD_origin_morning = ORD_origin.query("TimeOfDay == 'Morning'")
-    ORD_morning_count = ORD_origin_morning['ORIGIN'].count()
-    ORD_morning_delays = ORD_origin_morning.query("ARR_DELAY_NEW > 0")
-    ORD_morning_delays_count = ORD_morning_delays['ORIGIN'].count()
-    ORD_morning_delays_percent = round(ORD_morning_delays_count / ORD_morning_count * 100,1)
-    if ORD_morning_delays_count == 0:
-        ORD_morning_delay_length = 0
+# Data frame Total count of flights by origin
+count_by_origin = destination_flights.groupby('ORIGIN').agg({'ARR_DELAY_NEW': 'count'})
+group_delay_origin = destination_flights.query("ARR_DELAY_NEW > 0").groupby('ORIGIN')
+count_delay_by_origin = group_delay_origin.agg({'ARR_DELAY_NEW': 'count'})
+total_and_delay = count_by_origin.join(count_delay_by_origin, how = 'left', lsuffix = '_total', rsuffix = '_delay')
+# total_and_delay.rename({'ARR_DELAY_NEW':'total count of flights'})
+
+# Data frame Total count of flights by origin and time of day
+count_by_origin_time = destination_flights.groupby(['ORIGIN','TimeOfDay']).agg({'ARR_DELAY_NEW': 'count'})
+group_delay_time = destination_flights.query("ARR_DELAY_NEW > 0").groupby(['ORIGIN','TimeOfDay'])
+count_delay_by_origin_time = group_delay_time.agg({'ARR_DELAY_NEW': 'count'})
+total_and_delay_by_time = count_by_origin_time.join(count_delay_by_origin_time, how = 'left', lsuffix = '_total', rsuffix = '_delay')
+
+# Data frame Total count of flights by origin and day of the week
+count_by_origin_day = destination_flights.groupby(['ORIGIN','DAY_OF_WEEK']).agg({'ARR_DELAY_NEW': 'count'})
+group_delay_day = destination_flights.query("ARR_DELAY_NEW > 0").groupby(['ORIGIN','DAY_OF_WEEK'])
+count_delay_by_origin_day = group_delay_day.agg({'ARR_DELAY_NEW': 'count'})
+total_and_delay_by_day = count_by_origin_day.join(count_delay_by_origin_day, how = 'left', lsuffix = '_total', rsuffix = '_delay')
+
+# eliminates the error of not having flights form origin
+
+for index, row in count_by_origin.iterrows():
+    if len(count_by_origin) > 1:
+        print(f"{row['ARR_DELAY_NEW']} of those flights were from {ChicagoAirports[index]}")
+    elif len(count_by_origin) == 0:
+        print(f"\nNo airport go to {destination_question}.")
     else:
-        ORD_morning_delay_length = round(ORD_morning_delays['ARR_DELAY_NEW'].mean())
-
-    ORD_origin_afternoon = ORD_origin.query("TimeOfDay == 'Afternoon'")
-    ORD_afternoon_count = ORD_origin_afternoon['ORIGIN'].count()
-    ORD_afternoon_delays = ORD_origin_afternoon.query("ARR_DELAY_NEW > 0")
-    ORD_afternoon_delays_count = ORD_afternoon_delays['ORIGIN'].count()
-    ORD_afternoon_delays_percent = round(ORD_afternoon_delays_count / ORD_afternoon_count * 100,1)
-    if ORD_afternoon_delays_count == 0:
-        ORD_afternoon_delay_length = 0
+        print(f"All flights of those flights were from {ChicagoAirports[index]} to {codesdescriptions[destination_question]}.")
+print()
+i = 0
+min_percent = 0
+min_airport = ""
+origin_delay_mean = group_delay_origin.agg({'ARR_DELAY_NEW': 'mean'})
+for index, row in total_and_delay.iterrows():
+    delay_percent = round(row['ARR_DELAY_NEW_delay'] / row['ARR_DELAY_NEW_total'] * 100, 1)
+    if i == 0:
+        min_percent = delay_percent
+        min_airport = index
+        i+=1
     else:
-        ORD_afternoon_delay_length = round(ORD_afternoon_delays['ARR_DELAY_NEW'].mean())
+        if delay_percent<min_percent:
+            min_percent = delay_percent
+            min_airport = index
+    print(f"{delay_percent}% of the {ChicagoAirports[index]} flights were delayed")
+else:
+    print(f"Overall, {ChicagoAirports[min_airport]} is a better option for this route because fewer flights are delayed.")
+    # print("--------Mean", group_delay_origin.agg({'ARR_DELAY_NEW': 'mean'}))
 
-
-
-    ORD_origin_evening = ORD_origin.query("TimeOfDay == 'Evening'")
-    ORD_evening_count = ORD_origin_evening['ORIGIN'].count()
-    ORD_evening_delays = ORD_origin_evening.query("ARR_DELAY_NEW > 0")
-    ORD_evening_delays_count = ORD_evening_delays['ORIGIN'].count()
-    ORD_evening_delays_percent = round(ORD_evening_delays_count / ORD_evening_count * 100,1)
-    if ORD_evening_delays_count > 0:
-        ORD_evening_delay_length = round(ORD_evening_delays['ARR_DELAY_NEW'].mean())
-    else:
-        ORD_evening_delay_length = 0
-
-
-    print(f"\n{ORD_delay_percent}% of the O'Hare flights were delayed")
-    print(f"{ORD_morning_count} of the O'Hare flights were in the morning, {ORD_afternoon_count} were in the afternoon and {ORD_evening_count} were in the evening")
-    print(f"O'Hare flights delayed were:  Morning {ORD_morning_delays_percent}%, Afternoon {ORD_afternoon_delays_percent}% and Evening {ORD_evening_delays_percent}%")
-    print(f"Average length of delay for delayed flights was:  Morning {ORD_morning_delay_length}, Afternoon {ORD_afternoon_delay_length}, Evening {ORD_evening_delay_length}")
-
-
-
-if MDW_origin_count > 0:
-
-    # Following are calculations for total Midway flights
-    MDW_delays = MDW_origin.query("ARR_DELAY_NEW > 0")
-    MDW_delays_count = MDW_delays['ORIGIN'].count()
-    MDW_delay_percent = round(MDW_delays_count / MDW_origin_count * 100,1)
-    MDW_delay_length = round(MDW_delays['ARR_DELAY_NEW'].mean())
-
-
-    # Following are calculations for Midway flights by time of day
-    MDW_origin_morning = MDW_origin.query("TimeOfDay == 'Morning'")
-    MDW_morning_count = MDW_origin_morning['ORIGIN'].count()
-    MDW_morning_delays = MDW_origin_morning.query("ARR_DELAY_NEW > 0")  
-    MDW_morning_delays_count = MDW_morning_delays['ORIGIN'].count()
-    MDW_morning_delays_percent = round(MDW_morning_delays_count / MDW_morning_count * 100,1)
-    if MDW_morning_delays_count == 0:
-        MDW_morning_delay_length = 0
-    else:
-        MDW_morning_delay_length = round(MDW_morning_delays['ARR_DELAY_NEW'].mean())
-
-    MDW_origin_afternoon = MDW_origin.query("TimeOfDay == 'Afternoon'")
-    MDW_afternoon_count = MDW_origin_afternoon['ORIGIN'].count()
-    MDW_afternoon_delays = MDW_origin_afternoon.query("ARR_DELAY_NEW > 0")
-    MDW_afternoon_delays_count = MDW_afternoon_delays['ORIGIN'].count()
-    MDW_afternoon_delays_percent = round(MDW_afternoon_delays_count / MDW_afternoon_count * 100,1)
-    if MDW_afternoon_delays_count == 0:
-        MDW_afternoon_delay_length = 0
-    else:
-        MDW_afternoon_delay_length = round(MDW_afternoon_delays['ARR_DELAY_NEW'].mean())
-
-
-
-    MDW_origin_evening = MDW_origin.query("TimeOfDay == 'Evening'")
-    MDW_evening_count = MDW_origin_evening['ORIGIN'].count()
-    MDW_evening_delays = MDW_origin_evening.query("ARR_DELAY_NEW > 0")
-    MDW_evening_delays_count = MDW_evening_delays['ORIGIN'].count()
-    MDW_evening_delays_percent = round(MDW_evening_delays_count / MDW_evening_count * 100,1)
-    if MDW_evening_delays_count > 0:
-        MDW_evening_delay_length = round(MDW_evening_delays['ARR_DELAY_NEW'].mean())
-    else:
-        MDW_evening_delay_length = 0
-
-
-
-    print(f"\n{MDW_delay_percent}% of the Midway flights were delayed")
-    print(f"{MDW_morning_count} of the Midway flights were in the morning, {MDW_afternoon_count} were in the afternoon and {MDW_evening_count} were in the evening")
-    print(f"Midway flights delayed were as follows:  Morning {MDW_morning_delays_percent}%, Afternoon {MDW_afternoon_delays_percent}% and Evening {MDW_evening_delays_percent}%")
-    print(f"Average length of delay for delayed flights was:  Morning {MDW_morning_delay_length}, Afternoon {MDW_afternoon_delay_length}, Evening {MDW_evening_delay_length}")
-
-
-if ORD_origin_count > 0 and MDW_origin_count > 0:
-    if ORD_delay_percent < MDW_delay_percent:
-        print(f"\nOverall, O'Hare is a better option for this route because fewer flights are delayed.")
-        if ORD_morning_delays_percent < ORD_afternoon_delays_percent:
-            if ORD_morning_delays_percent < ORD_evening_delays_percent:
-                print(f"\nMorning is the best time to depart O'Hare on this route to minimize delays.")
+print('\n{:<10s}{:<12s}{:<12s}{:<12s}'.format("Airport", "Time", "Flights", "Delays (%)"))
+i = 0
+min_percent = 0
+min_time = ""
+for index, data in total_and_delay_by_time.iterrows():
+    for colname, row in data.to_frame().transpose().iterrows():
+        time_delay = round(row['ARR_DELAY_NEW_delay'] / row['ARR_DELAY_NEW_total'] * 100, 1)
+        if index[0] == min_airport:
+            if i == 0:
+                min_percent = time_delay
+                min_time = index[1]
+                i += 1
             else:
-                print(f"\nEvening is the best time to depart O'Hare on this route to minimize delays.")
-        elif ORD_afternoon_delays_percent < ORD_evening_delays_percent:
-                print(f"\nAfternoon is the best time to depart O'Hare on this route to minimize delays.")
-        else:
-            print(f"\nEvening is the best time to depart O'Hare on this route to minimize delays.")
-    else:
-        print(f"\nOverall, Midway is a better option for this route because fewer flights are delayed.")
-        if MDW_morning_delays_percent < MDW_afternoon_delays_percent:
-            if MDW_morning_delays_percent < MDW_evening_delays_percent:
-                print(f"\nMorning is the best time to depart Midway on this route to minimize delays.")
+                if time_delay < min_percent:
+                    min_percent = time_delay
+                    min_time = index[1]
+        print('{:<10s}{:<12s}{:<12s}{:<12s}'.format(str(ChicagoAirports[index[0]]), str(index[1]), str(row['ARR_DELAY_NEW_total']), str(time_delay)))
+#        print(f"{row['ARR_DELAY_NEW_total']} of the {index[0]} flights were in the {index[1]}")
+#        print(f"{index[0]} flights delayed were:  {index[1]} {time_delay}%")
+else:
+    print(f"{min_time} is the best time to depart {ChicagoAirports[min_airport]} on this route to minimize delays.")
+    # print("--------Mean", group_delay_time.agg({'ARR_DELAY_NEW': 'mean'}))
+
+print('\n{:<10s}{:<12s}{:<12s}{:<12s}'.format("Airport", "Day", "Flights", "Delays (%)"))
+i = 0
+min_percent = 0
+min_day = ""
+week_day = {1:"Monday", 2:"Tuesday", 3:"Wednesday", 4:"Thursday", 5:"Friday", 6:"Saturday", 7:"Sunday"}
+for index, data in total_and_delay_by_day.iterrows():
+    for colname, row in data.to_frame().transpose().iterrows():
+        day_delay = round(row['ARR_DELAY_NEW_delay'] / row['ARR_DELAY_NEW_total'] * 100, 1)
+#        print(f"{row['ARR_DELAY_NEW_total']} of the {index[0]} flights were on {week_day[index[1]]}")
+        if index[0] == min_airport:
+            if i == 0:
+                min_percent = day_delay
+                min_day = index[1]
+                i += 1
             else:
-                print(f"\nEvening is the best time to depart Midway on this route to minimize delays.")
-        elif MDW_afternoon_delays_percent < MDW_evening_delays_percent:
-            print(f"\nAfternoon is the best time to depart Midway on this route to minimize delays.")
-        else:
-            print(f"\nEvening is the best time to depart Midway on this route to minimize delays.")
+                if day_delay < min_percent:
+                    min_percent = day_delay
+                    min_day = index[1]
+        print('{:<10s}{:<12s}{:<12s}{:<12s}'.format(str(ChicagoAirports[index[0]]), week_day[index[1]], str(row['ARR_DELAY_NEW_total']), str(day_delay)))
+#        print(f"{index[0]} flights delayed were:  {week_day[index[1]]} {day_delay}%")
+else:
+    print(f"{week_day[min_day]} is the best day to depart {ChicagoAirports[min_airport]} on this route to minimize delays.")
+    # print("--------Mean", group_delay_day.agg({'ARR_DELAY_NEW': 'mean'}))
 
-if ORD_origin_count > 0 and MDW_origin_count < 1:
-    if ORD_morning_delays_percent < ORD_afternoon_delays_percent:
-        if ORD_morning_delays_percent < ORD_evening_delays_percent:
-            print(f"\nMorning is the best time to depart O'Hare on this route to minimize delays.")
-        else:
-            print(f"\nEvening is the best time to depart O'Hare on this route to minimize delays.")
-    elif ORD_afternoon_delays_percent < ORD_evening_delays_percent:
-            print(f"\nAfternoon is the best time to depart O'Hare on this route to minimize delays.")
-    else:
-        print(f"\nEvening is the best time to depart O'Hare on this route to minimize delays.")
-
-if ORD_origin_count < 1 and MDW_origin_count > 0:
-    if MDW_morning_delays_percent < MDW_afternoon_delays_percent:
-        if MDW_morning_delays_percent < MDW_evening_delays_percent:
-            print(f"\nMorning is the best time to depart Midway on this route to minimize delays.")
-        else:
-            print(f"\nEvening is the best time to depart Midway on this route to minimize delays.")
-    elif MDW_afternoon_delays_percent < MDW_evening_delays_percent:
-        print(f"\nAfternoon is the best time to depart Midway on this route to minimize delays.")
-    else:
-        print(f"\nEvening is the best time to depart Midway on this route to minimize delays.")
-
-
-
-#number of flights per weekday
-
-if ORD_origin_count > 0:
-
-    ORD_origin_monday = ORD_origin.query("DAY_OF_WEEK == 1")
-    ORD_monday_count = ORD_origin_monday['ORIGIN'].count()
-    ORD_monday_delays = ORD_origin_monday.query("DEP_DELAY_NEW > 0")
-    ORD_monday_delays_count = ORD_monday_delays['ORIGIN'].count()
-    ORD_monday_delays_percent = round(ORD_monday_delays_count / ORD_monday_count * 100,1)
-    if ORD_monday_delays_count == 0:
-        ORD_monday_delays_length = 0
-    else:
-        ORD_monday_delays_length = round(ORD_monday_delays['DEP_DELAY_NEW'].mean())
-
-    ORD_origin_tuesday = ORD_origin.query("DAY_OF_WEEK == 2")
-    ORD_tuesday_count = ORD_origin_tuesday['ORIGIN'].count()
-    ORD_tuesday_delays = ORD_origin_tuesday.query("DEP_DELAY_NEW > 0")
-    ORD_tuesday_delays_count = ORD_tuesday_delays['ORIGIN'].count()
-    ORD_tuesday_delays_percent = round(ORD_tuesday_delays_count / ORD_tuesday_count * 100,1)
-    if ORD_tuesday_delays_count == 0:
-        ORD_tuesday_delays_length = 0
-    else:
-        ORD_tuesday_delays_length = round(ORD_tuesday_delays['DEP_DELAY_NEW'].mean())
-
-
-    ORD_origin_wednesday = ORD_origin.query("DAY_OF_WEEK == 3")
-    ORD_wednesday_count = ORD_origin_wednesday['ORIGIN'].count()
-    ORD_wednesday_delays = ORD_origin_wednesday.query("DEP_DELAY_NEW > 0")
-    ORD_wednesday_delays_count = ORD_wednesday_delays['ORIGIN'].count()
-    ORD_wednesday_delays_percent = round(ORD_wednesday_delays_count / ORD_wednesday_count * 100,1)
-    if ORD_wednesday_delays_count == 0:
-        ORD_wednesday_delays_length = 0
-    else:
-        ORD_wednesday_delays_length = round(ORD_wednesday_delays['DEP_DELAY_NEW'].mean())
-
-    ORD_origin_thursday = ORD_origin.query("DAY_OF_WEEK == 4")
-    ORD_thursday_count = ORD_origin_thursday['ORIGIN'].count()
-    ORD_thursday_delays = ORD_origin_thursday.query("DEP_DELAY_NEW > 0")
-    ORD_thursday_delays_count = ORD_thursday_delays['ORIGIN'].count()
-    ORD_thursday_delays_percent = round(ORD_thursday_delays_count / ORD_thursday_count * 100,1)
-    if ORD_thursday_delays_count == 0:
-        ORD_thursday_delays_length = 0
-    else:
-        ORD_thursday_delays_length = round(ORD_thursday_delays['DEP_DELAY_NEW'].mean())
-
-    ORD_origin_friday = ORD_origin.query("DAY_OF_WEEK == 5")
-    ORD_friday_count = ORD_origin_friday['ORIGIN'].count()
-    ORD_friday_delays = ORD_origin_friday.query("DEP_DELAY_NEW > 0")
-    ORD_friday_delays_count = ORD_friday_delays['ORIGIN'].count()
-    ORD_friday_delays_percent = round(ORD_friday_delays_count / ORD_friday_count * 100,1)
-    if ORD_friday_delays_count == 0:
-        ORD_friday_delays_length = 0
-    else:
-        ORD_friday_delays_length = round(ORD_friday_delays['DEP_DELAY_NEW'].mean())
-
-    ORD_origin_saturday = ORD_origin.query("DAY_OF_WEEK == 6")
-    ORD_saturday_count = ORD_origin_saturday['ORIGIN'].count()
-    ORD_saturday_delays = ORD_origin_saturday.query("DEP_DELAY_NEW > 0")
-    ORD_saturday_delays_count = ORD_saturday_delays['ORIGIN'].count()
-    ORD_saturday_delays_percent = round(ORD_saturday_delays_count / ORD_saturday_count * 100,1)
-    if ORD_saturday_delays_count == 0:
-        ORD_saturday_delays_length = 0
-    else:
-        ORD_saturday_delays_length = round(ORD_saturday_delays['DEP_DELAY_NEW'].mean())
-
-    ORD_origin_sunday = ORD_origin.query("DAY_OF_WEEK == 7")
-    ORD_sunday_count = ORD_origin_sunday['ORIGIN'].count()
-    ORD_sunday_delays = ORD_origin_sunday.query("DEP_DELAY_NEW > 0")
-    ORD_sunday_delays_count = ORD_sunday_delays['ORIGIN'].count()
-    ORD_sunday_delays_percent = round(ORD_sunday_delays_count / ORD_sunday_count * 100,1)
-    if ORD_sunday_delays_count == 0:
-        ORD_sunday_delays_length = 0
-    else:
-        ORD_sunday_delays_length = round(ORD_sunday_delays['DEP_DELAY_NEW'].mean())
-
-if MDW_origin_count > 0:
-
-    MDW_origin_monday = MDW_origin.query("DAY_OF_WEEK == 1")
-    MDW_monday_count = MDW_origin_monday['ORIGIN'].count()
-    MDW_monday_delays = MDW_origin_monday.query("DEP_DELAY_NEW > 0")
-    MDW_monday_delays_count = MDW_monday_delays['ORIGIN'].count()
-    MDW_monday_delays_percent = round(MDW_monday_delays_count / MDW_monday_count * 100,1)
-    if MDW_monday_delays_count == 0:
-        MDW_monday_delays_length = 0
-    else:
-         MDW_monday_delays_length = round(MDW_monday_delays['DEP_DELAY_NEW'].mean())
-
-    MDW_origin_tuesday = MDW_origin.query("DAY_OF_WEEK == 2")
-    MDW_tuesday_count = MDW_origin_tuesday['ORIGIN'].count()
-    MDW_tuesday_delays = MDW_origin_tuesday.query("DEP_DELAY_NEW > 0")
-    MDW_tuesday_delays_count = MDW_tuesday_delays['ORIGIN'].count()
-    MDW_tuesday_delays_percent = round(MDW_tuesday_delays_count / MDW_tuesday_count * 100,1)
-    if MDW_tuesday_delays_count == 0:
-        MDW_tuesday_delays_length = 0
-    else:
-        MDW_tuesday_delays_length = round(MDW_tuesday_delays['DEP_DELAY_NEW'].mean())
-
-
-    MDW_origin_wednesday = MDW_origin.query("DAY_OF_WEEK == 3")
-    MDW_wednesday_count = MDW_origin_wednesday['ORIGIN'].count()
-    MDW_wednesday_delays = MDW_origin_wednesday.query("DEP_DELAY_NEW > 0")
-    MDW_wednesday_delays_count = MDW_wednesday_delays['ORIGIN'].count()
-    MDW_wednesday_delays_percent = round(MDW_wednesday_delays_count / MDW_wednesday_count * 100,1)
-    if MDW_wednesday_delays_count == 0:
-        MDW_wednesday_delays_length = 0
-    else:
-        MDW_wednesday_delay_length = round(MDW_wednesday_delays['DEP_DELAY_NEW'].mean())
-
-    MDW_origin_thursday = MDW_origin.query("DAY_OF_WEEK == 4")
-    MDW_thursday_count = MDW_origin_thursday['ORIGIN'].count()
-    MDW_thursday_delays = MDW_origin_thursday.query("DEP_DELAY_NEW > 0")
-    MDW_thursday_delays_count = MDW_thursday_delays['ORIGIN'].count()
-    MDW_thursday_delays_percent = round(MDW_thursday_delays_count / MDW_thursday_count * 100,1)
-    if MDW_thursday_delays_count == 0:
-        MDW_thursday_delays_length = 0
-    else:
-        MDW_thursday_delay_length = round(MDW_thursday_delays['DEP_DELAY_NEW'].mean())
-
-    MDW_origin_friday = MDW_origin.query("DAY_OF_WEEK == 5")
-    MDW_friday_count = MDW_origin_friday['ORIGIN'].count()
-    MDW_friday_delays = MDW_origin_friday.query("DEP_DELAY_NEW > 0")
-    MDW_friday_delays_count = MDW_friday_delays['ORIGIN'].count()
-    MDW_friday_delays_percent = round(MDW_friday_delays_count / MDW_friday_count * 100,1)
-    if MDW_friday_delays_count == 0:
-        MDW_friday_delays_length = 0
-    else:
-        MDW_friday_delay_length = round(MDW_friday_delays['DEP_DELAY_NEW'].mean())
-
-    MDW_origin_saturday = MDW_origin.query("DAY_OF_WEEK == 6")
-    MDW_saturday_count = MDW_origin_saturday['ORIGIN'].count()
-    MDW_saturday_delays = MDW_origin_saturday.query("DEP_DELAY_NEW > 0")
-    MDW_saturday_delays_count = MDW_saturday_delays['ORIGIN'].count()
-    MDW_saturday_delays_percent = round(MDW_saturday_delays_count / MDW_saturday_count * 100,1)
-    if MDW_saturday_delays_count == 0:
-        MDW_saturday_delays_length = 0
-    else:
-        MDW_saturday_delay_length = round(MDW_saturday_delays['DEP_DELAY_NEW'].mean())
-
-    MDW_origin_sunday = MDW_origin.query("DAY_OF_WEEK == 7")
-    MDW_sunday_count = MDW_origin_sunday['ORIGIN'].count()
-    MDW_sunday_delays = MDW_origin_sunday.query("DEP_DELAY_NEW > 0")
-    MDW_sunday_delays_count = MDW_sunday_delays['ORIGIN'].count()
-    MDW_sunday_delays_percent = round(MDW_sunday_delays_count / MDW_sunday_count * 100,1)
-    if MDW_sunday_delays_count == 0:
-        MDW_sunday_delays_length = 0
-    else:
-        MDW_sunday_delay_length = round(MDW_sunday_delays['DEP_DELAY_NEW'].mean())
-
-
-
-
-
-# Statistics - I think this works now, not sure the data is meaningful
-
-without_delay = destination_flights.query("ARR_DELAY_NEW == 0").ARR_DELAY_NEW.count()
-with_delay = destination_flights.query("ARR_DELAY_NEW > 0").ARR_DELAY_NEW.count()
-print("\nCount of flights without delay ", without_delay)
-print("\nCount of flights with delay ", with_delay)
-
-print("\n",destination_flights['ARR_DELAY_NEW'].dtypes)
-print("\n",destination_flights['ARR_DELAY_NEW'].sum())
-print("\n",destination_flights['ARR_DELAY_NEW'].describe())
-
-
-
-print("mean value: ", round(np.nanmean(destination_flights['ARR_DELAY_NEW']), 2))
-print("median value: ", np.nanmedian(destination_flights.ARR_DELAY_NEW))
-try:
-    print("mode value: ", stats.mode(destination_flights.ARR_DELAY_NEW)[0])
-except StatisticsError:
-    print("** Data does not have a unique mode **")
-print("sample standard deviation: ", \
-      round(np.std(destination_flights.ARR_DELAY_NEW), 2))
-
-
-#if we do correlation I need variables to correlate
 """
-# For correlation, can we only use columns that are numeric?  Here's a correlation that runs, but I'm not sure the data is meaningful
+# Regression
 
-corr_delays=destination_flights[['ARR_DELAY_NEW','DAY_OF_WEEK','CRS_DEP_TIME','DEP_DELAY_NEW']]
-print("\n",corr_delays.describe())
-print("\n",corr_delays.columns)
+model= smf.logit(formula="ARR_DELAY_NEW ~ TimeOfDay", data= destination_flights).fit()
 
-# The following line prints the correlation matrix
-print("\n",corr_delays.corr())
-"""
+# Print out the model summary information
+print(model.summary())
+
 
 
 # Bar chart
@@ -472,11 +242,22 @@ destination_flights = destination_flights.set_index('DEST')
 
 
 # Create DataFrame groupby object with count of pickups by area
-delay = destination_flights.groupby('ORIGIN').count()
+# delay = destination_flights.groupby('TimeOfDay').sum()
+delay = destination_flights.groupby('TimeOfDay').agg({'ARR_DELAY_NEW': 'sum'})
+delay_percent = delay / delay['ARR_DELAY_NEW'].sum()
+
+count_by_week = destination_flights.groupby(['ORIGIN','DAY_OF_WEEK']).agg({'ARR_DELAY_NEW': 'count'})
+delay_by_week = destination_flights.query("DEP_DELAY_NEW > 0").groupby(['ORIGIN','DAY_OF_WEEK']).agg({'ARR_DELAY_NEW': 'count'})
+
+print(type(count_by_week))
+
 print(delay)
+print(delay_percent)
+
+print(count_by_week , delay_by_week)
 
 x_labels = pd.Series(delay.index.values)
-y_values = pd.Series(delay['MONTH'].values)
+y_values = pd.Series(delay['ARR_DELAY_NEW'].values)
 
 # Create an array of the number of categories to use in the histogram
 bars = np.array(range(len(x_labels)))
@@ -490,3 +271,46 @@ plt.title('Delay by Time of Day')
 plt.xlabel('Time of Day')
 plt.ylabel('Delays')
 plt.show()
+<<<<<<< Updated upstream
+=======
+
+"""
+"""
+# Heatmap
+
+heatmap = destination_flights[['TimeOfDay','ORIGIN']]
+
+# Create frequency table using crosstabs function
+delays_freq = pd.crosstab(destination_flights.TimeOfDay,\
+     destination_flights.ORIGIN)
+print("After crosstab, type of delays_freq: ", type(delays_freq))
+print(delays_freq.head(10), "\n")
+
+fig = plt.figure()
+
+# Create heatmap from frequency table (in DataFrame)
+ax = sns.heatmap(delays_freq)
+
+plt.show()
+"""
+
+# Scatterplot of all ORD/MDW departures with ARR_DELAY_NEW > 0 based on departure time and length of delay
+# The results are interesting - there are notably more long delays for flights that depart later in the day!
+all_delayed_flights = flight_data_filtered[['CRS_DEP_TIME','ARR_DELAY_NEW']].query('ARR_DELAY_NEW > 15')
+
+# Create series for each of the two columns to use in scatterplot
+dep_time_series = all_delayed_flights.CRS_DEP_TIME
+delay_series = all_delayed_flights.ARR_DELAY_NEW
+
+fig = plt.figure()
+
+# Specify market and line style (here, none) to use
+plt.plot(dep_time_series,delay_series,marker=".",linestyle="none")
+plt.title('Length of Delay by Time of Departure (when delay > 15 min.)')
+plt.xlabel('Time of Departure')
+plt.ylabel('Length of Delay (minutes)')
+
+plt.show()
+
+
+
