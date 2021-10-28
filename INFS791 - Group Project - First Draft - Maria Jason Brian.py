@@ -16,6 +16,7 @@ import statsmodels.formula.api as smf
 airport_data = pd.read_csv('airport_data.csv')
 flight_data = pd.concat(map(pd.read_csv, ['2020DecemberIllinoisFlights.csv', '2019DecemberIllinoisFlights.csv','2018DecemberIllinoisFlights.csv', '2017DecemberIllinoisFlights.csv']))
 
+
 flight_data['TimeOfDay'] = np.where(flight_data['CRS_DEP_TIME'] <= 1200, 'Morning', 
                       np.where(flight_data['CRS_DEP_TIME'] >= 1700, 'Evening', 'Afternoon'))
 
@@ -119,6 +120,13 @@ num_dest = destination_flights['DEST'].count()
 
 print(f"\nWe counted {num_dest} flights from Chicago to {codesdescriptions[destination_question]}")
 
+# Dictionary to print O'Hare or Midway instead of ORD or MDW
+ChicagoAirports = {
+    "MDW" : "Midway",
+    "ORD" : "O'Hare"
+    }
+
+
 # Data frame Total count of flights by origin
 count_by_origin = destination_flights.groupby('ORIGIN').agg({'ARR_DELAY_NEW': 'count'})
 group_delay_origin = destination_flights.query("ARR_DELAY_NEW > 0").groupby('ORIGIN')
@@ -142,11 +150,11 @@ total_and_delay_by_day = count_by_origin_day.join(count_delay_by_origin_day, how
 
 for index, row in count_by_origin.iterrows():
     if len(count_by_origin) > 1:
-        print(f"Of those flights, {row['ARR_DELAY_NEW']} were from {index}")
+        print(f"{row['ARR_DELAY_NEW']} of those flights were from {ChicagoAirports[index]}")
     elif len(count_by_origin) == 0:
         print(f"\nNo airport go to {destination_question}.")
     else:
-        print(f"\nAll flights are from {index} to {destination_question}.")
+        print(f"\nAll flights of those flights were from {ChicagoAirports[index]} to {codesdescriptions[destination_question]}.")
 print()
 i = 0
 min_percent = 0
@@ -162,9 +170,9 @@ for index, row in total_and_delay.iterrows():
         if delay_percent<min_percent:
             min_percent = delay_percent
             min_airport = index
-    print(f"{delay_percent}% of the {index} flights were delayed")
+    print(f"{delay_percent}% of the {ChicagoAirports[index]} flights were delayed")
 else:
-    print(f"Overall, {min_airport} is a better option for this route because fewer flights are delayed.")
+    print(f"Overall, {ChicagoAirports[min_airport]} is a better option for this route because fewer flights are delayed.")
     # print("--------Mean", group_delay_origin.agg({'ARR_DELAY_NEW': 'mean'}))
 
 print('\n{:<10s}{:<12s}{:<12s}{:<12s}'.format("Airport", "Time", "Flights", "Delays (%)"))
@@ -183,11 +191,11 @@ for index, data in total_and_delay_by_time.iterrows():
                 if time_delay < min_percent:
                     min_percent = time_delay
                     min_time = index[1]
-        print('{:<10s}{:<12s}{:<12s}{:<12s}'.format(str(index[0]), str(index[1]), str(row['ARR_DELAY_NEW_total']), str(time_delay)))
+        print('{:<10s}{:<12s}{:<12s}{:<12s}'.format(str(ChicagoAirports[index[0]]), str(index[1]), str(row['ARR_DELAY_NEW_total']), str(time_delay)))
 #        print(f"{row['ARR_DELAY_NEW_total']} of the {index[0]} flights were in the {index[1]}")
 #        print(f"{index[0]} flights delayed were:  {index[1]} {time_delay}%")
 else:
-    print(f"{min_time} is the best time to depart {min_airport} on this route to minimize delays.")
+    print(f"{min_time} is the best time to depart {ChicagoAirports[min_airport]} on this route to minimize delays.")
     # print("--------Mean", group_delay_time.agg({'ARR_DELAY_NEW': 'mean'}))
 
 print('\n{:<10s}{:<12s}{:<12s}{:<12s}'.format("Airport", "Day", "Flights", "Delays (%)"))
@@ -208,11 +216,10 @@ for index, data in total_and_delay_by_day.iterrows():
                 if day_delay < min_percent:
                     min_percent = day_delay
                     min_day = index[1]
-        print('{:<10s}{:<12s}{:<12s}{:<12s}'.format(str(index[0]), str(index[1]), str(row['ARR_DELAY_NEW_total']), str(time_delay)))
-# HOW TO GET DAY (MONDAY, TUESDAY, ETC.) TO PRINT INSTEAD OF THE NUMBER???????  IT WORKS FOR TIMEOFDAY BUT NOT FOR DAY OF WEEK!!
+        print('{:<10s}{:<12s}{:<12s}{:<12s}'.format(str(ChicagoAirports[index[0]]), week_day[index[1]], str(row['ARR_DELAY_NEW_total']), str(time_delay)))
 #        print(f"{index[0]} flights delayed were:  {week_day[index[1]]} {day_delay}%")
 else:
-    print(f"{week_day[min_day]} is the best day to depart {min_airport} on this route to minimize delays.")
+    print(f"{week_day[min_day]} is the best day to depart {ChicagoAirports[min_airport]} on this route to minimize delays.")
     # print("--------Mean", group_delay_day.agg({'ARR_DELAY_NEW': 'mean'}))
 
 """
