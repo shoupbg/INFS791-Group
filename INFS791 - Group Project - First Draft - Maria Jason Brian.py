@@ -11,6 +11,9 @@ import numpy as np
 import seaborn as sns
 from scipy import stats
 import statsmodels.formula.api as smf
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import classification_report
 
 # Access airport data file and create a list of valid airport codes from the flight data file
 airport_data = pd.read_csv('airport_data.csv')
@@ -310,7 +313,7 @@ x_train, x_test, y_train, y_test = train_test_split(arrive_x, arrive_y,
                                     test_size=0.25, random_state = 30)
 y_train = np.ravel(y_train)
 
-classifier = LogisticRegression(solver='saga').fit(x_train, y_train) 
+classifier = LogisticRegression(solver='saga', max_iter=10000).fit(x_train, y_train) 
 
 print("training score of model: ")
 print(round(classifier.score(x_train, y_train), 3), "\n")
