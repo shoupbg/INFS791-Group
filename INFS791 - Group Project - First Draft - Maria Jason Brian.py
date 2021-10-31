@@ -9,7 +9,6 @@ from statistics import *
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
-from scipy import stats
 import statsmodels.formula.api as smf
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
@@ -302,6 +301,14 @@ if continue_answer == 'y':
 
     plt.show()
 
+    total_delay = flight_data_filtered.query("ARR_DELAY_NEW > 0").groupby('ORIGIN')
+    print("\nMean delay in minutes by airport:")
+    print(round(total_delay.agg({'ARR_DELAY_NEW': 'mean'}).reset_index()\
+        .rename(columns={'ARR_DELAY_NEW': 'DELAY MEAN'}),1))
+
+
+print("\n----------------------------------------------------")
+
 #machine learning predictions
 
 flight_data.fillna(0,inplace=True)
@@ -315,10 +322,10 @@ y_train = np.ravel(y_train)
 
 classifier = LogisticRegression(solver='saga', max_iter=10000).fit(x_train, y_train) 
 
-print("training score of model: ")
+print("\nTraining score of model: ")
 print(round(classifier.score(x_train, y_train), 3), "\n")
 
-print("testing score of model: ")
+print("Testing score of model: ")
 print(round(classifier.score(x_test, y_test), 3), "\n")
 
 big_delay = classifier.predict(x_test)
