@@ -301,6 +301,7 @@ if continue_answer == 'y':
 
     plt.show()
 
+<<<<<<< Updated upstream
     total_delay = flight_data_filtered.query("ARR_DELAY_NEW > 0").groupby('ORIGIN')
     print("\nMean delay in minutes by airport:")
     print(round(total_delay.agg({'ARR_DELAY_NEW': 'mean'}).reset_index()\
@@ -308,6 +309,32 @@ if continue_answer == 'y':
 
 
 print("\n----------------------------------------------------")
+=======
+"""
+# This scatterpolt did not produce meaningful results
+# Scatterplot of all ORD/MDW departures with ARR_DELAY_NEW > 0 based on departure time and day of week
+
+
+flight_data['DayConverted'] = flight_data['DAY_OF_WEEK']*2400
+flight_data['TimePlusDay'] = flight_data['DayConverted']+flight_data['CRS_DEP_TIME']
+
+all_delayed_flights = flight_data[['TimePlusDay', 'ARR_DELAY_NEW']].query('ARR_DELAY_NEW < 60')
+
+# Create series for each of the two columns to use in scatterplot
+dep_time_series = all_delayed_flights.TimePlusDay
+delay_series = all_delayed_flights.ARR_DELAY_NEW
+
+fig = plt.figure()
+
+# Specify market and line style (here, none) to use
+plt.plot(dep_time_series, delay_series, marker=".", linestyle="none")
+plt.title('Length of Delay by Day of Departure (when delay > 60 min.)')
+plt.xlabel('Day/Time of Departure (Mon-Sun)')
+plt.ylabel('Length of Delay (minutes)')
+
+plt.show()
+"""
+>>>>>>> Stashed changes
 
 #machine learning predictions
 
