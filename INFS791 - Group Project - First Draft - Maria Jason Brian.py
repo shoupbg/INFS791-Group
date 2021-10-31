@@ -80,29 +80,6 @@ if destination_question.lower() == "lookup":
     destination_question  = lookup()
 
 
-"""
-print(airport_data['Description'].where(airport_data['Code']==destination_question))
-"""
-
-"""
-airport_data['Code Name'] = airport_data['Code']+airport_data['Description']
-
-print()
-"""
-
-#Need to fix this - shouldn't be hard to retrieve the Description from the airport_data.csv file based on the "destination_question" value
-
-"""
-
-# Lookup name of city that destination airport (code) is located in
-
-destination_dict = {row[0]: row[1] for row in available_airports.values}
-
-destination_airport_city = available_airports[destination_question]
-
-print(destination_airport_city)
-"""
-
 # Checks whether airport code entered is a valid code actually served by a Chicago airport; starts lookup loop again if needed
 
 while destination_question.upper() not in airports_served_list:
@@ -176,7 +153,7 @@ for index, row in total_and_delay.iterrows():
 else:
     mean = group_delay_origin.agg({'ARR_DELAY_NEW': 'mean'})
     print(f"Overall, {ChicagoAirports[min_airport]} is a better option for this route because fewer flights are delayed.")
-    print(f"Mean of delays for this airport is {round(mean['ARR_DELAY_NEW'][min_airport],1)} minutes")
+    print(f"Average delay for delayed flights from {ChicagoAirports[min_airport]} to {codesdescriptions[destination_question]} is {round(mean['ARR_DELAY_NEW'][min_airport],1)} minutes")
 
 print('\n{:<10s}{:<12s}{:<12s}{:<12s}'.format("Airport", "Time", "Flights", "Delays (%)"))
 i = 0
@@ -195,12 +172,11 @@ for index, data in total_and_delay_by_time.iterrows():
                     min_percent = time_delay
                     min_time = index[1]
         print('{:<10s}{:<12s}{:<12s}{:<12s}'.format(str(ChicagoAirports[index[0]]), str(index[1]), str(row['ARR_DELAY_NEW_total']), str(time_delay)))
-#        print(f"{row['ARR_DELAY_NEW_total']} of the {index[0]} flights were in the {index[1]}")
-#        print(f"{index[0]} flights delayed were:  {index[1]} {time_delay}%")
+
 else:
     mean = group_delay_time.agg({'ARR_DELAY_NEW': 'mean'})
     print(f"{min_time} is the best time to depart {ChicagoAirports[min_airport]} on this route to minimize delays.")
-    print(f"Mean of delays for this airport and time of day is {round(mean['ARR_DELAY_NEW'][min_airport][min_time],1)} minutes")
+    print(f"Average delay for delayed flights from {ChicagoAirports[min_airport]} to {codesdescriptions[destination_question]} in the {min_time} is {round(mean['ARR_DELAY_NEW'][min_airport][min_time],1)} minutes")
 
 
 print('\n{:<10s}{:<12s}{:<12s}{:<12s}'.format("Airport", "Day", "Flights", "Delays (%)"))
@@ -226,7 +202,7 @@ for index, data in total_and_delay_by_day.iterrows():
 else:
     mean = group_delay_day.agg({'ARR_DELAY_NEW': 'mean'})
     print(f"{week_day[min_day]} is the best day to depart {ChicagoAirports[min_airport]} on this route to minimize delays.")
-    print(f"Mean of delays for this airport and weekday is {round(mean['ARR_DELAY_NEW'][min_airport][min_day],1)} minutes")
+    print(f"Average delay for delayed flights from {ChicagoAirports[min_airport]} to {codesdescriptions[destination_question]} on {week_day[min_day]}s is {round(mean['ARR_DELAY_NEW'][min_airport][min_day],1)} minutes")
 
 print("\n----------------------------------------------------")
 continue_answer = input("Do you want to see further visual comparison between the two airports? (y/n)").lower()
@@ -301,7 +277,7 @@ if continue_answer == 'y':
 
     plt.show()
 
-<<<<<<< Updated upstream
+
     total_delay = flight_data_filtered.query("ARR_DELAY_NEW > 0").groupby('ORIGIN')
     print("\nMean delay in minutes by airport:")
     print(round(total_delay.agg({'ARR_DELAY_NEW': 'mean'}).reset_index()\
@@ -309,7 +285,7 @@ if continue_answer == 'y':
 
 
 print("\n----------------------------------------------------")
-=======
+
 """
 # This scatterpolt did not produce meaningful results
 # Scatterplot of all ORD/MDW departures with ARR_DELAY_NEW > 0 based on departure time and day of week
@@ -334,7 +310,7 @@ plt.ylabel('Length of Delay (minutes)')
 
 plt.show()
 """
->>>>>>> Stashed changes
+
 
 #machine learning predictions
 
