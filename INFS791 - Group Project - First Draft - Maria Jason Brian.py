@@ -304,6 +304,7 @@ if continue_answer == 'y':
 
 #machine learning predictions
 
+"""
 flight_data.fillna(0,inplace=True)
 
 arrive_y = flight_data["ARR_DEL15"] 
@@ -313,7 +314,7 @@ x_train, x_test, y_train, y_test = train_test_split(arrive_x, arrive_y,
                                     test_size=0.25, random_state = 30)
 y_train = np.ravel(y_train)
 
-classifier = LogisticRegression(solver='saga', max_iter=10000).fit(x_train, y_train) 
+classifier = LogisticRegression(solver='lbfgs', max_iter=10000).fit(x_train, y_train) 
 
 print("training score of model: ")
 print(round(classifier.score(x_train, y_train), 3), "\n")
@@ -328,5 +329,6 @@ print(big_delay)
 print("Number predicted to be a big delay: ", sum(big_delay))
 
 print(classification_report(y_test, big_delay))
+"""
 
 
