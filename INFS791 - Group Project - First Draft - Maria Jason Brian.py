@@ -297,7 +297,7 @@ x_train, x_test, y_train, y_test = train_test_split(arrive_x, arrive_y,
                                     test_size=0.25, random_state = 30)
 y_train = np.ravel(y_train)
 
-# used the lbfgs machine learning solver with LogisticRegression to predict flight delays for MDW and ORD
+# used the lbfgs machine learning solver with LogisticRegression to predict flight delays above 15 minutes for MDW and ORD
 classifier = LogisticRegression(solver='lbfgs', max_iter=10000).fit(x_train, y_train) 
 
 print("\nTraining score of model: ")
