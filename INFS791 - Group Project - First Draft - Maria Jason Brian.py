@@ -291,7 +291,7 @@ print("\n----------------------------------------------------")
 flight_data.fillna(0,inplace=True)
 
 arrive_y = flight_data["ARR_DEL15"] 
-arrive_x = flight_data[["CANCELLED", "DAY_OF_WEEK", "ARR_DELAY"]]  
+arrive_x = flight_data[["DEP_DEL15", "DAY_OF_WEEK", "ARR_DELAY"]]  
 
 x_train, x_test, y_train, y_test = train_test_split(arrive_x, arrive_y,
                                     test_size=0.25, random_state = 30)
